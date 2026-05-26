@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Day — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f0f4f8; color: #1a2332; min-height: 100vh; }
+
+    /* NAV */
+    #nav {
+      display: none; align-items: center; justify-content: space-between;
+      background: #1a2332; padding: 0 24px; height: 58px; position: sticky; top: 0; z-index: 50;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; }
+    .nav-logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #1b5e20, #00796b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: white;
+    }
+    .nav-title { font-size: 15px; font-weight: 700; color: white; }
+    .nav-tag { font-size: 10px; font-weight: 700; background: #2e7d32; color: white; padding: 2px 8px; border-radius: 6px; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .nav-right { display: flex; gap: 8px; align-items: center; }
+    .btn-sm { padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .btn-green { background: #2e7d32; color: white; }
+    .btn-green:hover { background: #1b5e20; }
+    .btn-outline { background: transparent; color: #94a3b8; border: 1.5px solid #374151; }
+    .btn-outline:hover { border-color: #64748b; color: white; }
+
+    /* LOGIN */
+    #view-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(160deg, #1a2332 0%, #2d3748 100%); }
+    .login-card { background: white; border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 380px; }
+    .login-logo { width: 52px; height: 52px; border-radius: 14px; margin: 0 auto 18px; background: linear-gradient(135deg, #1b5e20, #00796b); display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; }
+    .login-title { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .login-sub { font-size: 13px; color: #64748b; text-align: center; margin-bottom: 26px; }
+    .form-field { margin-bottom: 14px; }
+    .form-field label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-input { width: 100%; padding: 11px 13px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-size: 14px; font-family: 'Inter', sans-serif; color: #1a2332; background: #fafafa; }
+    .form-input:focus { outline: none; border-color: #2e7d32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); background: white; }
+    .btn-full { width: 100%; padding: 13px; border: none; border-radius: 10px; background: linear-gradient(135deg, #1a2332, #2d3748); color: white; font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 4px; }
+    .btn-full:hover { opacity: 0.9; }
+    #login-error { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #b91c1c; margin-bottom: 12px; display: none; }
+
+    /* MAIN */
+    .main { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+
+    /* TABS */
+    .page-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: white; padding: 5px; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); width: fit-content; }
+    .page-tab { padding: 8px 18px; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; color: #64748b; border: none; background: none; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .page-tab.active { background: #1a2332; color: white; }
+
+    /* STAT CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+    .stat-num { font-size: 32px; font-weight: 800; color: #1a2332; line-height: 1; margin-bottom: 4px; }
+    .stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* TABLE */
+    .card { background: white; border-radius: 16px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 15px; font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { background: #f8fafc; padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+    tbody td { padding: 12px 16px; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f9fafb; }
+    .badge { padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-closed { background: #fef3c7; color: #92400e; }
+    .badge-inactive { background: #f3f4f6; color: #6b7280; }
+    .empty-row td { text-align: center; padding: 40px; color: #94a3b8; font-size: 14px; }
+
+    /* CREATE SCHOOL FORM */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+    .section-card { background: white; border-radius: 16px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 20px; }
+    .section-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #1a2332; color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 1000; transform: translateY(80px); opacity: 0; transition: all 0.3s; }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.green { background: #2e7d32; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- LOGIN -->
+<div id="view-login">
+  <div class="login-card">
+    <div class="login-logo">⚙️</div>
+    <div class="login-title">Admin Dashboard</div>
+    <div class="login-sub">SmartFlow HK — Open Day Platform</div>
+    <div id="login-error"></div>
+    <div class="form-field">
+      <label>Master Password</label>
+      <input class="form-input" type="password" id="inp-master" placeholder="••••••••••••"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <button class="btn-full" id="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">O</div>
+    <div class="nav-title">Open Day Platform <span class="nav-tag">Admin</span></div>
+  </div>
+  <div class="nav-right">
+    <button class="btn-sm btn-outline" onclick="loadData()">↺ Refresh</button>
+    <button class="btn-sm btn-outline" onclick="signOut()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="view-main" style="display:none">
+  <div class="main">
+
+    <!-- TABS -->
+    <div class="page-tabs">
+      <button class="page-tab active" id="tab-overview" onclick="switchTab('overview')">Overview</button>
+      <button class="page-tab" id="tab-schools" onclick="switchTab('schools')">Schools</button>
+      <button class="page-tab" id="tab-events" onclick="switchTab('events')">All Events</button>
+      <button class="page-tab" id="tab-create" onclick="switchTab('create')">+ New School</button>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <div id="tab-content-overview">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="st-schools">—</div>
+          <div class="stat-lbl">Schools</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="st-events">—</div>
+          <div class="stat-lbl">Events</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="st-regs">—</div>
+          <div class="stat-lbl">Registrations</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Schools</div>
+          <button class="btn-sm btn-green" onclick="switchTab('create')">+ New School</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>School</th><th>ID</th><th>Admin Email</th><th>Events</th><th>Registrations</th><th>Status</th><th>Created</th></tr></thead>
+            <tbody id="overview-schools-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHOOLS TAB -->
+    <div id="tab-content-schools" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">All Schools</div>
+          <button class="btn-sm btn-green" onclick="switchTab('create')">+ New School</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>School Name</th><th>ID</th><th>Admin Email</th><th>Phone</th><th>Events</th><th>Regs</th><th>Status</th></tr></thead>
+            <tbody id="schools-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENTS TAB -->
+    <div id="tab-content-events" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">All Events</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Event</th><th>School</th><th>Date</th><th>Venue</th><th>Registrations</th><th>Attended</th><th>Status</th><th>Booking Link</th></tr></thead>
+            <tbody id="events-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE SCHOOL TAB -->
+    <div id="tab-content-create" style="display:none">
+      <div class="section-card">
+        <div class="section-title">Create New School Account</div>
+        <div class="form-grid">
+          <div class="full form-field">
+            <label class="form-label" style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">School Name <span style="color:#ef4444">*</span></label>
+            <input class="form-input" type="text" id="cs-name" placeholder="e.g. St. Hilary's Primary School">
+          </div>
+          <div class="form-field">
+            <label class="form-label" style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Admin Email <span style="color:#ef4444">*</span></label>
+            <input class="form-input" type="email" id="cs-email" placeholder="principal@school.edu.hk">
+          </div>
+          <div class="form-field">
+            <label class="form-label" style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Portal Password <span style="color:#ef4444">*</span></label>
+            <input class="form-input" type="text" id="cs-password" placeholder="e.g. SchoolName2026!">
+          </div>
+          <div class="form-field">
+            <label class="form-label" style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Email Sender Name</label>
+            <input class="form-input" type="text" id="cs-resend-from" placeholder="openday@smartflowhk.com" value="openday@smartflowhk.com">
+          </div>
+          <div class="full form-field">
+            <label class="form-label" style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">School Address</label>
+            <input class="form-input" type="text" id="cs-address" placeholder="1 School Road, District, Hong Kong">
+          </div>
+          <div class="form-field">
+            <label class="form-label" style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Phone</label>
+            <input class="form-input" type="text" id="cs-phone" placeholder="+852 2xxx xxxx">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-sm btn-green" id="cs-btn" onclick="createSchool()" style="padding:10px 28px;font-size:14px">Create Account</button>
+        </div>
+        <div id="cs-result" style="display:none;margin-top:16px;background:#f0faf0;border:1px solid #c8e6c9;border-radius:10px;padding:14px 16px;font-size:13px"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const N8N = 'https://n8n.okahh.com';
+const MASTER_PW = 'SmartFlowAdmin2026!';
+let state = { schools: [], events: [], masterPw: '' };
+
+// ── AUTH ──────────────────────────────────────────────────────────
+async function doLogin() {
+  const pw = document.getElementById('inp-master').value.trim();
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  if (!pw) { errEl.textContent = 'Please enter the master password.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  const res = await apiGet('openday-admin-overview', { master_password: pw });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (res.success) {
+    state.masterPw = pw;
+    state.schools  = res.schools || [];
+    state.events   = res.events  || [];
+    state.totalRegs = res.total_regs || 0;
+    document.getElementById('view-login').style.display = 'none';
+    document.getElementById('nav').style.display = 'flex';
+    document.getElementById('view-main').style.display = 'block';
+    renderAll();
+  } else {
+    errEl.textContent = res.message || 'Incorrect password.';
+    errEl.style.display = 'block';
+  }
+}
+
+function signOut() {
+  state = { schools: [], events: [], masterPw: '' };
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('view-main').style.display = 'none';
+  document.getElementById('view-login').style.display = 'flex';
+  document.getElementById('inp-master').value = '';
+}
+
+async function loadData() {
+  const res = await apiGet('openday-admin-overview', { master_password: state.masterPw });
+  if (res.success) {
+    state.schools = res.schools || [];
+    state.events  = res.events  || [];
+    state.totalRegs = res.total_regs || 0;
+    renderAll();
+    toast('Refreshed', true);
+  }
+}
+
+// ── API ───────────────────────────────────────────────────────────
+async function apiGet(endpoint, params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  try {
+    const res = await fetch(`${N8N}/webhook/${endpoint}?${qs}`);
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
+  } catch { return { success: false }; }
+}
+
+async function apiPost(endpoint, body) {
+  try {
+    const res = await fetch(`${N8N}/webhook/${endpoint}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
+  } catch { return { success: false }; }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function renderAll() {
+  // Stats
+  document.getElementById('st-schools').textContent = state.schools.filter(s => s.status !== 'deleted').length;
+  document.getElementById('st-events').textContent  = state.events.filter(e => e.status !== 'deleted').length;
+  document.getElementById('st-regs').textContent    = state.totalRegs;
+
+  // Overview schools table
+  renderSchoolsTable('overview-schools-tbody', true);
+  renderSchoolsTable('schools-tbody', false);
+  renderEventsTable();
+}
+
+function renderSchoolsTable(tbodyId, compact) {
+  const tbody = document.getElementById(tbodyId);
+  const schools = state.schools.filter(s => s.status !== 'deleted');
+  if (!schools.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No schools yet. Create the first one.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = schools.map(s => {
+    const statusClass = s.status === 'active' ? 'badge-active' : 'badge-inactive';
+    const created = s.created_date ? new Date(s.created_date).toLocaleDateString('en-HK') : '—';
+    if (compact) {
+      return `<tr>
+        <td><div style="font-weight:700">${esc(s.school_name)}</div></td>
+        <td><code style="font-size:12px;color:#64748b">${esc(s.school_id)}</code></td>
+        <td style="color:#64748b;font-size:12px">${esc(s.admin_email)}</td>
+        <td style="font-weight:700;color:#2e7d32">${s.event_count || 0}</td>
+        <td style="font-weight:700">${s.reg_count || 0}</td>
+        <td><span class="badge ${statusClass}">${s.status}</span></td>
+        <td style="color:#94a3b8;font-size:12px">${created}</td>
+      </tr>`;
+    }
+    return `<tr>
+      <td><div style="font-weight:700">${esc(s.school_name)}</div><div style="font-size:12px;color:#94a3b8">${esc(s.school_address || '')}</div></td>
+      <td><code style="font-size:12px;color:#64748b">${esc(s.school_id)}</code></td>
+      <td style="color:#64748b;font-size:12px">${esc(s.admin_email)}</td>
+      <td style="color:#64748b;font-size:12px">${esc(s.school_phone || '—')}</td>
+      <td style="font-weight:700;color:#2e7d32">${s.event_count || 0}</td>
+      <td style="font-weight:700">${s.reg_count || 0}</td>
+      <td><span class="badge ${statusClass}">${s.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderEventsTable() {
+  const tbody = document.getElementById('events-tbody');
+  const events = state.events.filter(e => e.status !== 'deleted');
+  if (!events.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No events yet.</td></tr>';
+    return;
+  }
+  const schoolMap = Object.fromEntries(state.schools.map(s => [s.school_id, s.school_name]));
+  tbody.innerHTML = events.map(ev => {
+    const statusClass = ev.status === 'active' ? 'badge-active' : 'badge-closed';
+    const bookingUrl = `https://openday.smartflowhk.com/book.html?event=${ev.event_id}`;
+    return `<tr>
+      <td><div style="font-weight:700">${esc(ev.event_name)}</div><div style="font-size:11px;color:#94a3b8">${esc(ev.event_id)}</div></td>
+      <td style="font-size:13px">${esc(schoolMap[ev.school_id] || ev.school_id)}</td>
+      <td style="font-size:12px;color:#64748b;white-space:nowrap">${esc(ev.event_date_display || ev.event_date || '—')}</td>
+      <td style="font-size:12px;color:#64748b">${esc(ev.venue || '—')}</td>
+      <td style="font-weight:700;color:#2e7d32">${ev.reg_count || 0}</td>
+      <td style="font-weight:700">${ev.attended_count || 0}</td>
+      <td><span class="badge ${statusClass}">${ev.status}</span></td>
+      <td>
+        <button onclick="copyText('${bookingUrl}')" style="background:none;border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;color:#374151">Copy Link</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── CREATE SCHOOL ─────────────────────────────────────────────────
+async function createSchool() {
+  const name    = document.getElementById('cs-name').value.trim();
+  const email   = document.getElementById('cs-email').value.trim();
+  const pw      = document.getElementById('cs-password').value.trim();
+  const from    = document.getElementById('cs-resend-from').value.trim();
+  const address = document.getElementById('cs-address').value.trim();
+  const phone   = document.getElementById('cs-phone').value.trim();
+
+  if (!name || !email || !pw) { toast('School name, email and password are required.'); return; }
+
+  const btn = document.getElementById('cs-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  const res = await apiPost('openday-create-school', {
+    master_password: state.masterPw,
+    school_name:    name,
+    admin_email:    email,
+    password:       pw,
+    resend_from:    from || 'openday@smartflowhk.com',
+    school_address: address,
+    school_phone:   phone,
+  });
+
+  btn.disabled = false; btn.textContent = 'Create Account';
+
+  if (res.success) {
+    const resultEl = document.getElementById('cs-result');
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = `
+      <div style="font-weight:700;color:#166534;margin-bottom:8px">✓ School account created</div>
+      <div style="margin-bottom:4px"><strong>School ID:</strong> <code>${esc(res.school_id)}</code></div>
+      <div style="margin-bottom:4px"><strong>Login URL:</strong> <a href="https://openday.smartflowhk.com/school.html" target="_blank" style="color:#2e7d32">openday.smartflowhk.com/school.html</a></div>
+      <div style="margin-bottom:4px"><strong>School ID:</strong> ${esc(res.school_id)}</div>
+      <div><strong>Password:</strong> ${esc(pw)}</div>
+    `;
+    // Clear form
+    ['cs-name','cs-email','cs-password','cs-address','cs-phone'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('cs-resend-from').value = 'openday@smartflowhk.com';
+    // Refresh data
+    await loadData();
+    toast('School account created!', true);
+  } else {
+    toast(res.message || 'Failed to create school. Try again.');
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['overview','schools','events','create'].forEach(t => {
+    document.getElementById(`tab-content-${t}`).style.display = t === tab ? 'block' : 'none';
+    document.getElementById(`tab-${t}`).className = 'page-tab' + (t === tab ? ' active' : '');
+  });
+  if (tab === 'create') document.getElementById('cs-result').style.display = 'none';
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+  });
+  toast('Copied!', true);
+}
+
+let toastTimer;
+function toast(msg, green = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (green ? ' green' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 2800);
+}
+</script>
+</body>
+</html>
