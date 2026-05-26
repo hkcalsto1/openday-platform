@@ -346,6 +346,99 @@
     }
     .sticky-close:hover { color: white; }
 
+    /* PRODUCT PREVIEW */
+    .preview-section {
+      background: linear-gradient(160deg, #0f1720 0%, #1e3a2f 60%, #0f1720 100%);
+      padding: 80px 5vw; overflow: hidden;
+    }
+    .preview-section .section-label { color: #81c784; }
+    .preview-section .section-title { color: white; }
+    .preview-section .section-desc { color: #94a3b8; margin: 0 auto; }
+    .preview-frames {
+      display: flex; align-items: flex-start; gap: 28px;
+      margin-top: 56px; max-width: 1000px; margin-left: auto; margin-right: auto;
+    }
+    .laptop-wrap {
+      flex: 1.7;
+      transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
+      filter: drop-shadow(0 40px 60px rgba(0,0,0,0.55));
+    }
+    .laptop-frame { background: #1e293b; border-radius: 10px 10px 0 0; overflow: hidden; border: 2px solid #334155; }
+    .laptop-topbar {
+      background: #0f172a; padding: 9px 14px;
+      display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #1e293b;
+    }
+    .mock-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .mock-dot-r { background: #ef4444; } .mock-dot-y { background: #f59e0b; } .mock-dot-g { background: #22c55e; }
+    .laptop-screen { background: #f1f5f9; }
+    .laptop-base { background: #1e293b; height: 12px; border-radius: 0 0 4px 4px; border: 2px solid #334155; border-top: none; }
+    .m-nav {
+      background: white; padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .m-brand { display: flex; align-items: center; gap: 8px; }
+    .m-logo {
+      width: 30px; height: 30px; border-radius: 7px;
+      background: linear-gradient(135deg, #1b5e20, #00796b);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 11px; font-weight: 800;
+    }
+    .m-school strong { display: block; font-size: 12px; font-weight: 700; color: #1a2332; line-height: 1.2; }
+    .m-school span { font-size: 10px; color: #64748b; }
+    .m-nav-btns { display: flex; gap: 8px; align-items: center; }
+    .m-btn-new { background: linear-gradient(135deg, #2e7d32, #00796b); color: white; font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 6px; }
+    .m-signout { font-size: 10px; color: #64748b; }
+    .m-body { padding: 14px; }
+    .m-heading { font-size: 14px; font-weight: 800; color: #1a2332; margin-bottom: 12px; }
+    .m-events { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .m-card { background: white; border-radius: 10px; padding: 12px; border: 1.5px solid #e2e8f0; }
+    .m-card.active-card { border-color: #2e7d32; }
+    .m-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .m-card-name { font-size: 12px; font-weight: 700; color: #1a2332; }
+    .m-badge-a { background: #dcfce7; color: #166534; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+    .m-badge-c { background: #fef3c7; color: #92400e; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+    .m-card-date { font-size: 10px; color: #64748b; margin-bottom: 10px; }
+    .m-stats { display: flex; gap: 12px; margin-bottom: 10px; }
+    .m-stat { text-align: center; }
+    .m-stat-n { font-size: 15px; font-weight: 800; color: #2e7d32; line-height: 1; }
+    .m-stat-n.r { color: #ef4444; }
+    .m-stat-l { font-size: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
+    .m-card-btns { display: flex; gap: 5px; }
+    .m-cbtn-v { background: linear-gradient(135deg, #2e7d32, #00796b); color: white; font-size: 9px; font-weight: 700; padding: 4px 9px; border-radius: 5px; }
+    .m-cbtn-c { background: white; border: 1.5px solid #e2e8f0; color: #374151; font-size: 9px; font-weight: 600; padding: 4px 9px; border-radius: 5px; }
+    /* Phone frame */
+    .phone-wrap {
+      flex: 0.85; align-self: center;
+      transform: perspective(1200px) rotateY(4deg) rotateX(2deg);
+      filter: drop-shadow(0 40px 60px rgba(0,0,0,0.55));
+    }
+    .phone-frame { background: #1e293b; border-radius: 28px; border: 2px solid #334155; overflow: hidden; padding: 12px 10px; }
+    .phone-notch { width: 56px; height: 16px; background: #0f172a; border-radius: 20px; margin: 0 auto 10px; }
+    .phone-screen { background: white; border-radius: 16px; overflow: hidden; }
+    .ph-header { background: linear-gradient(135deg, #1e3a2f, #1a2332); padding: 12px 14px; }
+    .ph-event-name { font-size: 13px; font-weight: 800; color: white; margin-bottom: 3px; }
+    .ph-event-date { font-size: 10px; color: #81c784; }
+    .ph-lang-toggle { display: flex; margin-top: 9px; background: rgba(255,255,255,0.1); border-radius: 7px; width: fit-content; padding: 2px; }
+    .ph-lang-btn { font-size: 10px; font-weight: 700; padding: 3px 10px; color: rgba(255,255,255,0.45); border-radius: 5px; }
+    .ph-lang-btn.ph-active { background: linear-gradient(135deg, #2e7d32, #00796b); color: white; }
+    .ph-form { padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+    .ph-field label { display: block; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .ph-field input, .ph-field select {
+      width: 100%; padding: 7px 10px; border: 1.5px solid #e2e8f0; border-radius: 7px;
+      font-size: 11px; color: #374151; background: white; pointer-events: none;
+    }
+    .ph-submit {
+      background: linear-gradient(135deg, #2e7d32, #00796b);
+      color: white; font-size: 12px; font-weight: 700; padding: 10px;
+      border-radius: 8px; text-align: center; margin-top: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .preview-frames { flex-direction: column; align-items: center; }
+      .laptop-wrap, .phone-wrap { transform: none; flex: none; width: 100%; max-width: 380px; }
+    }
+
     @media (max-width: 768px) {
       .steps { grid-template-columns: 1fr; gap: 32px; }
       .steps::before { display: none; }
@@ -473,6 +566,115 @@
       <div class="social-stat"><strong>Set up in under an hour</strong> — no IT team needed</div>
       <div class="social-stat"><strong>Zero ongoing fees</strong> per registration</div>
       <div class="social-stat"><strong>Your data</strong>, your Google Sheet</div>
+    </div>
+  </div>
+
+  <!-- PRODUCT PREVIEW -->
+  <div class="preview-section">
+    <div class="section-center">
+      <div class="section-label">Product Preview</div>
+      <h2 class="section-title">What your team and parents will see</h2>
+      <p class="section-desc">The school portal gives admissions full control. Parents get a clean bilingual form that works on any device — no account needed.</p>
+    </div>
+    <div class="preview-frames">
+      <!-- Laptop: school portal events list -->
+      <div class="laptop-wrap">
+        <div class="laptop-frame">
+          <div class="laptop-topbar">
+            <span class="mock-dot mock-dot-r"></span>
+            <span class="mock-dot mock-dot-y"></span>
+            <span class="mock-dot mock-dot-g"></span>
+          </div>
+          <div class="laptop-screen">
+            <div class="m-nav">
+              <div class="m-brand">
+                <div class="m-logo">O</div>
+                <div class="m-school">
+                  <strong>Open Day</strong>
+                  <span>Test School</span>
+                </div>
+              </div>
+              <div class="m-nav-btns">
+                <div class="m-btn-new">+ New Event</div>
+                <span class="m-signout">Sign Out</span>
+              </div>
+            </div>
+            <div class="m-body">
+              <div class="m-heading">Your Events</div>
+              <div class="m-events">
+                <div class="m-card active-card">
+                  <div class="m-card-header">
+                    <div class="m-card-name">Open Day 2026</div>
+                    <span class="m-badge-a">ACTIVE</span>
+                  </div>
+                  <div class="m-card-date">📅 Tue, 1 Sep 2026 &nbsp;⏰ 11:00–14:00</div>
+                  <div class="m-stats">
+                    <div class="m-stat"><div class="m-stat-n">2</div><div class="m-stat-l">Registered</div></div>
+                    <div class="m-stat"><div class="m-stat-n">1</div><div class="m-stat-l">Attended</div></div>
+                    <div class="m-stat"><div class="m-stat-n r">0</div><div class="m-stat-l">No-Show</div></div>
+                  </div>
+                  <div class="m-card-btns">
+                    <div class="m-cbtn-v">View →</div>
+                    <div class="m-cbtn-c">Copy Link</div>
+                  </div>
+                </div>
+                <div class="m-card">
+                  <div class="m-card-header">
+                    <div class="m-card-name">Summer Camp 2025</div>
+                    <span class="m-badge-c">CLOSED</span>
+                  </div>
+                  <div class="m-card-date">📅 Fri, 29 May 2025 &nbsp;⏰ 10:00–12:00</div>
+                  <div class="m-stats">
+                    <div class="m-stat"><div class="m-stat-n">45</div><div class="m-stat-l">Registered</div></div>
+                    <div class="m-stat"><div class="m-stat-n">38</div><div class="m-stat-l">Attended</div></div>
+                    <div class="m-stat"><div class="m-stat-n r">7</div><div class="m-stat-l">No-Show</div></div>
+                  </div>
+                  <div class="m-card-btns">
+                    <div class="m-cbtn-v">View →</div>
+                    <div class="m-cbtn-c">Copy Link</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="laptop-base"></div>
+      </div>
+      <!-- Phone: parent booking form -->
+      <div class="phone-wrap">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ph-header">
+              <div class="ph-event-name">Open Day 2026</div>
+              <div class="ph-event-date">📅 Tue 1 Sep &nbsp;⏰ 11:00–14:00</div>
+              <div class="ph-lang-toggle">
+                <div class="ph-lang-btn ph-active">EN</div>
+                <div class="ph-lang-btn">中文</div>
+              </div>
+            </div>
+            <div class="ph-form">
+              <div class="ph-field">
+                <label>Parent Name</label>
+                <input type="text" placeholder="Your full name" readonly>
+              </div>
+              <div class="ph-field">
+                <label>Email</label>
+                <input type="text" placeholder="your@email.com" readonly>
+              </div>
+              <div class="ph-field">
+                <label>Child's Name</label>
+                <input type="text" placeholder="Child's name" readonly>
+              </div>
+              <div class="ph-field">
+                <label>Programme</label>
+                <select disabled><option>Primary School</option></select>
+              </div>
+              <div class="ph-submit">Register Now →</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -751,7 +953,7 @@
       <a class="btn-secondary" href="school.html">School Login</a>
     </div>
     <p class="cta-email">Email us: <a href="mailto:openday@smartflowhk.com">openday@smartflowhk.com</a></p>
-    <p class="cta-whatsapp">Prefer WhatsApp? <a href="https://wa.me/852XXXXXXXX">Message us at +852 XXXX XXXX</a></p>
+    <p class="cta-whatsapp">Prefer WhatsApp? <a href="https://wa.me/85246111510" target="_blank">Message us at +852 4611 1510</a></p>
   </div>
 
   <!-- FOOTER -->
