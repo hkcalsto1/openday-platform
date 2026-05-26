@@ -6,6 +6,7 @@
   <title>Open Day — School Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: #f0f4f8; color: #1a2332; min-height: 100vh; }
@@ -325,6 +326,7 @@
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" id="tab-regs" onclick="switchTab('regs')">Registrations</button>
+        <button class="tab" id="tab-qr" onclick="switchTab('qr')">📷 Scan QR</button>
         <button class="tab" id="tab-details" onclick="switchTab('details')">Event Details</button>
       </div>
 
@@ -360,6 +362,21 @@
               </thead>
               <tbody id="regs-tbody"></tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Scanner Tab -->
+      <div id="tab-content-qr" style="display:none">
+        <div class="card" style="padding:24px;max-width:480px;margin:0 auto">
+          <div style="text-align:center;margin-bottom:20px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:6px">Scan Parent QR Code</div>
+            <div style="font-size:13px;color:#64748b">Point the camera at the QR code in the parent's confirmation email</div>
+          </div>
+          <div id="qr-reader" style="width:100%;border-radius:12px;overflow:hidden;background:#1a2332"></div>
+          <div id="qr-result" style="margin-top:16px"></div>
+          <div id="qr-start-wrap" style="text-align:center;margin-top:16px">
+            <button class="btn-sm btn-green" onclick="startQRScanner()" id="qr-start-btn" style="padding:11px 28px;font-size:14px">Start Camera</button>
           </div>
         </div>
       </div>
@@ -423,6 +440,10 @@
       <div class="form-field">
         <label class="form-label">Admin Alert Email</label>
         <input class="form-input" type="email" id="evt-admin-email" placeholder="you@school.edu.hk">
+      </div>
+      <div class="full form-field">
+        <label class="form-label">Event Description <span style="font-weight:400;color:#94a3b8">(optional — shown on booking page)</span></label>
+        <textarea class="form-input" id="evt-description" rows="3" placeholder="e.g. Join us for a guided tour of our campus, meet our teachers, and learn about our programmes."></textarea>
       </div>
     </div>
     <!-- Form Builder -->
@@ -718,8 +739,9 @@ async function doCheckIn(regId) {
 
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(tab) {
+  if (state.activeTab === 'qr' && tab !== 'qr') stopQRScanner();
   state.activeTab = tab;
-  ['regs','details'].forEach(t => {
+  ['regs','qr','details'].forEach(t => {
     document.getElementById(`tab-content-${t}`).style.display = t === tab ? 'block' : 'none';
     document.getElementById(`tab-${t}`).className = 'tab' + (t === tab ? ' active' : '');
   });
@@ -737,6 +759,7 @@ function openCreateEventModal() {
   document.getElementById('evt-venue').value = '';
   document.getElementById('evt-capacity').value = '';
   document.getElementById('evt-admin-email').value = state.school?.admin_email || '';
+  document.getElementById('evt-description').value = '';
   state.formQuestions = [];
   renderTags();
   renderFormQuestions();
@@ -756,6 +779,7 @@ function openEditEventModal() {
   document.getElementById('evt-venue').value = ev.venue || '';
   document.getElementById('evt-capacity').value = ev.capacity || '';
   document.getElementById('evt-admin-email').value = ev.admin_email || '';
+  document.getElementById('evt-description').value = ev.event_description || '';
   try { state.formQuestions = JSON.parse(ev.form_fields || '[]'); } catch { state.formQuestions = []; }
   renderTags();
   renderFormQuestions();
@@ -787,9 +811,10 @@ async function saveEvent() {
     event_date_display: displayDate,
     venue:            venue,
     programmes:       state.programmes.join(','),
-    capacity:         document.getElementById('evt-capacity').value || '',
-    admin_email:      document.getElementById('evt-admin-email').value.trim() || state.school.admin_email,
-    form_fields:      JSON.stringify(state.formQuestions),
+    capacity:          document.getElementById('evt-capacity').value || '',
+    admin_email:       document.getElementById('evt-admin-email').value.trim() || state.school.admin_email,
+    form_fields:       JSON.stringify(state.formQuestions),
+    event_description: document.getElementById('evt-description').value.trim(),
   };
   let res;
   if (state.editingEventId) {
@@ -959,7 +984,8 @@ function renderFormQuestions() {
           <label class="form-label" style="font-size:12px">Type</label>
           <select class="filter-select" style="width:100%;font-size:13px" onchange="updateFormQuestion('${q.id}','type',this.value)">
             <option value="text" ${q.type === 'text' ? 'selected' : ''}>Short Text</option>
-            <option value="dropdown" ${q.type === 'dropdown' ? 'selected' : ''}>Dropdown</option>
+            <option value="dropdown" ${q.type === 'dropdown' ? 'selected' : ''}>Dropdown (pick one)</option>
+            <option value="checkbox" ${q.type === 'checkbox' ? 'selected' : ''}>Checkboxes (pick many)</option>
           </select>
         </div>
         <div style="display:flex;align-items:center;gap:8px;padding-top:22px">
@@ -967,7 +993,7 @@ function renderFormQuestions() {
           <label for="req-${q.id}" style="font-size:13px;font-weight:600;cursor:pointer">Required</label>
         </div>
       </div>
-      ${q.type === 'dropdown' ? `
+      ${(q.type === 'dropdown' || q.type === 'checkbox') ? `
       <div class="fq-opts-grid" style="margin-top:10px">
         <div class="form-field" style="margin:0">
           <label class="form-label" style="font-size:12px">Options (EN) — one per line</label>
@@ -985,6 +1011,74 @@ function renderFormQuestions() {
 function toggleCustomAnswers(regId) {
   const row = document.getElementById('ca-' + regId);
   if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ── QR SCANNER ────────────────────────────────────────────────────
+let qrScanner = null;
+
+function startQRScanner() {
+  document.getElementById('qr-start-wrap').style.display = 'none';
+  document.getElementById('qr-result').innerHTML = '';
+  if (typeof Html5Qrcode === 'undefined') {
+    document.getElementById('qr-result').innerHTML = '<div style="color:#b91c1c;text-align:center;padding:12px">QR scanner library not loaded. Check connection.</div>';
+    document.getElementById('qr-start-wrap').style.display = 'block';
+    return;
+  }
+  qrScanner = new Html5Qrcode('qr-reader');
+  qrScanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 240, height: 240 } },
+    onQRSuccess,
+    () => {}
+  ).catch(err => {
+    document.getElementById('qr-result').innerHTML = '<div style="color:#b91c1c;text-align:center;padding:12px">Camera access denied. Please allow camera permission.</div>';
+    document.getElementById('qr-start-wrap').style.display = 'block';
+    qrScanner = null;
+  });
+}
+
+async function stopQRScanner() {
+  if (qrScanner) {
+    try { await qrScanner.stop(); } catch {}
+    qrScanner = null;
+  }
+}
+
+async function onQRSuccess(token) {
+  await stopQRScanner();
+  const resultEl = document.getElementById('qr-result');
+  resultEl.innerHTML = '<div style="text-align:center;color:#64748b;padding:12px">Checking in…</div>';
+  const res = await api('POST', 'openday-checkin-qr', {
+    checkin_token: token.trim(),
+    school_id: state.school.school_id,
+    password: state.school.password
+  });
+  if (res.success) {
+    const reg = state.regs.find(r => r.registration_id === res.registration_id);
+    if (reg) { reg.attendance_status = 'Attended'; reg.check_in_time = res.check_in_time; }
+    updateEventStats();
+    resultEl.innerHTML = `
+      <div style="background:#dcfce7;border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">✅</div>
+        <div style="font-size:18px;font-weight:800;color:#166534">${esc(res.parent_name)}</div>
+        <div style="font-size:14px;color:#166534;margin-top:4px">${esc(res.child_name || '')}${res.programme ? ' · ' + esc(res.programme) : ''}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:6px">${esc(res.registration_id)}</div>
+        <button onclick="resetQRScanner()" class="btn-sm btn-green" style="margin-top:16px;padding:10px 24px">Scan Next →</button>
+      </div>`;
+  } else {
+    resultEl.innerHTML = `
+      <div style="background:#fee2e2;border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">❌</div>
+        <div style="font-size:16px;font-weight:700;color:#991b1b">${esc(res.message || 'Check-in failed')}</div>
+        <button onclick="resetQRScanner()" class="btn-sm btn-outline" style="margin-top:16px;padding:10px 24px">Try Again</button>
+      </div>`;
+  }
+}
+
+function resetQRScanner() {
+  document.getElementById('qr-result').innerHTML = '';
+  document.getElementById('qr-reader').innerHTML = '';
+  document.getElementById('qr-start-wrap').style.display = 'block';
 }
 
 // Close modal on overlay click

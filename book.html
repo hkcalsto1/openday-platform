@@ -210,6 +210,11 @@
     </div>
   </div>
 
+  <!-- Event Description -->
+  <div class="card" id="event-description-card" style="display:none">
+    <p id="event-desc-text" style="font-size:15px;line-height:1.7;color:#374151"></p>
+  </div>
+
   <!-- Error Banner -->
   <div class="error-banner" id="error-banner">
     <p id="error-msg">Submission failed. Please check your connection and try again.</p>
@@ -368,6 +373,7 @@ async function loadEventConfig() {
     const data = await res.json();
     if (!data || !data.event_id) { showConfigError('Event not found.'); return; }
     if (data.status === 'closed') { showConfigError('This event is no longer accepting registrations.'); return; }
+    if (data.is_full) { showConfigError(lang === 'zh' ? '非常抱歉，此活動名額已滿。' : 'Sorry, this event is now full. Registrations are closed.'); return; }
     eventConfig = data;
     applyEventConfig(data);
   } catch {
@@ -408,6 +414,16 @@ function applyEventConfig(data) {
   document.title = `${data.school_name} — Open Day Registration`;
   document.getElementById('reg-form-wrap').style.display = 'block';
   document.getElementById('loading-state').style.display = 'none';
+  // Show event description if set
+  const descEl = document.getElementById('event-description-card');
+  if (descEl) {
+    if (data.event_description) {
+      descEl.style.display = 'block';
+      document.getElementById('event-desc-text').textContent = data.event_description;
+    } else {
+      descEl.style.display = 'none';
+    }
+  }
   setLang('en');
 }
 
@@ -442,8 +458,11 @@ const T = {
     lpEnSub: 'Confirmation in English', lpZhSub: '以繁體中文確認',
     submit: 'Register Now →',
     note: 'By registering you agree to receive event-related communications. We respect your privacy.',
+    ages: ['Select age range','2–3 years old','4–5 years old','6–8 years old','9–11 years old','12–14 years old','15–18 years old'],
     errReq: 'This field is required', errEmail: 'Please enter a valid email address',
     errProg: 'Please select a programme', errNet: 'Submission failed. Please check your connection and try again.',
+    errFull: 'Sorry, this event is now full.',
+    errDup: 'You are already registered for this event.',
     retry: 'Retry',
     sucTitle: 'Registration Confirmed!',
     sucSub: 'Check your email for confirmation and a QR code for check-in.',
@@ -471,8 +490,11 @@ const T = {
     lpEnSub: 'Confirmation in English', lpZhSub: '以繁體中文確認',
     submit: '立即報名 →',
     note: '報名即同意接收活動相關資訊。我們重視您的私隱。',
+    ages: ['請選擇年齡範圍','2至3歲','4至5歲','6至8歲','9至11歲','12至14歲','15至18歲'],
     errReq: '此項為必填', errEmail: '請輸入有效電郵地址',
     errProg: '請選擇課程', errNet: '提交失敗，請檢查網絡後重試。',
+    errFull: '非常抱歉，此活動名額已滿。',
+    errDup: '您已報名參加此活動。',
     retry: '重試',
     sucTitle: '報名成功！',
     sucSub: '請查看電郵，內有確認資料及入場QR碼。',
@@ -514,7 +536,9 @@ function setLang(l) {
   document.getElementById('lbl-ph').textContent = t.ph;
   document.getElementById('lbl-cn').textContent = t.cn;
   document.getElementById('lbl-ca').textContent = t.ca;
-  document.getElementById('age-ph').textContent = t.agePh;
+  const ageSelect = document.getElementById('childAge');
+  const ageVals = ['', '2–3', '4–5', '6–8', '9–11', '12–14', '15–18'];
+  Array.from(ageSelect.options).forEach((opt, i) => { opt.textContent = t.ages[i] || opt.textContent; });
   document.getElementById('lbl-prog').innerHTML = t.prog + ' <span class="required">*</span>';
   document.getElementById('lbl-hear').textContent = t.hear;
   document.getElementById('h-web').textContent    = t.hWeb;
@@ -564,6 +588,19 @@ function renderCustomFields() {
             <option value="">${isZh ? '— 請選擇 —' : '— Select —'}</option>
             ${opts.map((o, i) => `<option value="${enOpts[i] || o}">${o}</option>`).join('')}
           </select>
+          <div class="field-error" id="err-cf_${f.id}"></div>
+        </div>`;
+      }
+      if (f.type === 'checkbox') {
+        const opts = isZh && f.options_zh && f.options_zh.length ? f.options_zh : (f.options_en || []);
+        const enOpts = f.options_en || [];
+        const checkboxes = opts.map((o, i) => `
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;margin-bottom:7px;font-size:14px;transition:border-color 0.2s" onclick="this.style.borderColor=this.querySelector('input').checked?'#e2e8f0':'#2e7d32'">
+            <input type="checkbox" name="cf_${f.id}" value="${enOpts[i] || o}" style="width:16px;height:16px;cursor:pointer;accent-color:#2e7d32"> ${o}
+          </label>`).join('');
+        return `<div class="field">
+          <label>${label}${req}</label>
+          <div id="cf_${f.id}">${checkboxes}</div>
           <div class="field-error" id="err-cf_${f.id}"></div>
         </div>`;
       }
@@ -627,8 +664,15 @@ function validate() {
   }
   customFields.forEach(f => {
     if (f.required) {
-      const el = document.getElementById('cf_' + f.id);
-      if (el && !el.value.trim()) { el.classList.add('is-error'); const e = document.getElementById('err-cf_' + f.id); if (e) { e.textContent = t.errReq; e.className = 'field-error show'; } ok = false; }
+      if (f.type === 'checkbox') {
+        const checked = document.querySelectorAll(`input[name="cf_${f.id}"]:checked`).length;
+        const e = document.getElementById('err-cf_' + f.id);
+        if (!checked) { if (e) { e.textContent = t.errReq; e.className = 'field-error show'; } ok = false; }
+        else { if (e) e.className = 'field-error'; }
+      } else {
+        const el = document.getElementById('cf_' + f.id);
+        if (el && !el.value.trim()) { el.classList.add('is-error'); const e = document.getElementById('err-cf_' + f.id); if (e) { e.textContent = t.errReq; e.className = 'field-error show'; } ok = false; }
+      }
     }
   });
   return ok;
@@ -641,9 +685,10 @@ async function postData(payload) {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+    const data = await res.json().catch(() => ({}));
+    if (data && data.success === false) return { ok: false, serverMsg: lang === 'zh' ? (data.message_zh || data.message) : data.message };
     return { ok: true };
   } catch {
-    // CORS or network — try no-cors (optimistic: form data reaches server)
     try {
       await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       return { ok: true, cors: false };
@@ -691,7 +736,14 @@ document.getElementById('reg-form').addEventListener('submit', async e => {
     registrationId: regId,
     source: 'openday-booking-form',
     custom_answers: JSON.stringify(Object.fromEntries(
-      customFields.map(f => { const el = document.getElementById('cf_' + f.id); return [f.id, el ? el.value.trim() : '']; })
+      customFields.map(f => {
+        if (f.type === 'checkbox') {
+          const checked = Array.from(document.querySelectorAll(`input[name="cf_${f.id}"]:checked`)).map(cb => cb.value);
+          return [f.id, checked.join(', ')];
+        }
+        const el = document.getElementById('cf_' + f.id);
+        return [f.id, el ? el.value.trim() : ''];
+      })
     )),
   };
 
@@ -701,6 +753,8 @@ document.getElementById('reg-form').addEventListener('submit', async e => {
   } else {
     btn.disabled = false;
     document.getElementById('submit-text').textContent = T[lang].submit;
+    if (result.serverMsg) document.getElementById('error-msg').textContent = result.serverMsg;
+    else document.getElementById('error-msg').textContent = T[lang].errNet;
     document.getElementById('error-banner').classList.add('show');
   }
 });
