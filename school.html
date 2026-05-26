@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Day — School Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f0f4f8; color: #1a2332; min-height: 100vh; }
+
+    /* ── NAV ── */
+    #nav {
+      display: none; align-items: center; justify-content: space-between;
+      background: white; border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px; height: 60px; position: sticky; top: 0; z-index: 50;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; }
+    .nav-logo {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: linear-gradient(135deg, #1b5e20, #00796b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: white;
+    }
+    .nav-title { font-size: 15px; font-weight: 700; }
+    .nav-school { font-size: 13px; color: #64748b; font-weight: 400; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .btn-sm {
+      padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .btn-green { background: #2e7d32; color: white; }
+    .btn-green:hover { background: #1b5e20; }
+    .btn-outline { background: white; color: #374151; border: 1.5px solid #e2e8f0; }
+    .btn-outline:hover { border-color: #2e7d32; color: #2e7d32; }
+    .btn-ghost-sm { background: transparent; color: #64748b; padding: 7px 12px; }
+    .btn-ghost-sm:hover { color: #1a2332; background: #f3f4f6; border-radius: 8px; }
+
+    /* ── MAIN ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+    /* ── CARD ── */
+    .card { background: white; border-radius: 16px; box-shadow: 0 1px 12px rgba(0,0,0,0.07); }
+
+    /* ── LOGIN VIEW ── */
+    #view-login {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+      background: linear-gradient(160deg, #1b5e20 0%, #2e7d32 50%, #00796b 100%);
+    }
+    .login-card { background: white; border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 400px; }
+    .login-logo {
+      width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 20px;
+      background: linear-gradient(135deg, #1b5e20, #00796b);
+      display: flex; align-items: center; justify-content: center; font-size: 26px; color: white;
+    }
+    .login-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 6px; }
+    .login-sub { font-size: 14px; color: #64748b; text-align: center; margin-bottom: 28px; }
+    .form-field { margin-bottom: 16px; }
+    .form-field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 15px; font-family: 'Inter', sans-serif; color: #1a2332;
+      transition: border-color 0.2s, box-shadow 0.2s; background: #fafafa;
+    }
+    .form-input:focus { outline: none; border-color: #2e7d32; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); background: white; }
+    .btn-full {
+      width: 100%; padding: 14px; border: none; border-radius: 11px;
+      background: linear-gradient(135deg, #2e7d32, #388e3c);
+      color: white; font-size: 16px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.2s; margin-top: 4px;
+    }
+    .btn-full:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(46,125,50,0.3); }
+    .btn-full:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .login-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 16px; }
+    #login-error { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #b91c1c; margin-bottom: 14px; display: none; }
+
+    /* ── EVENTS VIEW ── */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-title { font-size: 22px; font-weight: 800; }
+    .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .event-card {
+      background: white; border-radius: 16px; padding: 22px;
+      border: 1.5px solid #e8f0e8; cursor: pointer; transition: all 0.2s;
+    }
+    .event-card:hover { border-color: #2e7d32; box-shadow: 0 4px 16px rgba(46,125,50,0.12); transform: translateY(-2px); }
+    .event-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+    .event-card-name { font-size: 16px; font-weight: 700; line-height: 1.3; }
+    .badge {
+      flex-shrink: 0; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-draft { background: #f3f4f6; color: #6b7280; }
+    .badge-closed { background: #fef3c7; color: #92400e; }
+    .event-card-date { font-size: 13px; color: #64748b; margin-bottom: 12px; }
+    .event-card-stats { display: flex; gap: 16px; }
+    .stat-mini { text-align: center; }
+    .stat-mini-num { font-size: 18px; font-weight: 800; color: #2e7d32; }
+    .stat-mini-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .event-card-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0f0f0; }
+    .empty-state { text-align: center; padding: 64px 24px; }
+    .empty-icon { font-size: 56px; margin-bottom: 16px; }
+    .empty-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .empty-sub { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+
+    /* ── EVENT DETAIL VIEW ── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600;
+      color: #64748b; cursor: pointer; margin-bottom: 20px; transition: color 0.2s;
+      background: none; border: none; font-family: 'Inter', sans-serif;
+    }
+    .back-btn:hover { color: #2e7d32; }
+    .event-detail-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+    .event-detail-name { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+    .event-detail-meta { font-size: 14px; color: #64748b; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: white; border-radius: 14px; padding: 18px 16px; text-align: center; border: 1px solid #f0f0f0; }
+    .stat-num { font-size: 28px; font-weight: 800; color: #2e7d32; line-height: 1; margin-bottom: 4px; }
+    .stat-lbl { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .capacity-bar-wrap { background: #f0f0f0; border-radius: 4px; height: 6px; margin-top: 8px; }
+    .capacity-bar { background: linear-gradient(90deg, #2e7d32, #66bb6a); border-radius: 4px; height: 6px; transition: width 0.4s; }
+
+    /* Share link */
+    .share-box { background: #f0faf0; border: 1.5px solid #c8e6c9; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .share-url { flex: 1; font-size: 13px; color: #1a2332; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .copy-btn { flex-shrink: 0; padding: 7px 14px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.2s; }
+    .copy-btn:hover { background: #1b5e20; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px; gap: 2px; }
+    .tab { padding: 10px 18px; font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Inter', sans-serif; }
+    .tab.active { color: #2e7d32; border-bottom-color: #2e7d32; }
+    .tab:hover { color: #2e7d32; }
+
+    /* Registrations table */
+    .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-input {
+      flex: 1; min-width: 200px; padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 14px; font-family: 'Inter', sans-serif; color: #1a2332;
+    }
+    .search-input:focus { outline: none; border-color: #2e7d32; }
+    .filter-select {
+      padding: 9px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 13px; font-family: 'Inter', sans-serif; color: #374151;
+      background: white; cursor: pointer;
+    }
+    .filter-select:focus { outline: none; border-color: #2e7d32; }
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #f0f0f0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { background: #f8fafc; padding: 11px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+    tbody td { padding: 12px 14px; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f9fafb; }
+    .status-pill { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .status-registered { background: #dbeafe; color: #1e40af; }
+    .status-attended { background: #dcfce7; color: #166534; }
+    .status-noshow { background: #fee2e2; color: #991b1b; }
+    .btn-checkin { padding: 5px 12px; background: #2e7d32; color: white; border: none; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap; }
+    .btn-checkin:hover { background: #1b5e20; }
+    .btn-checkin:disabled { background: #94a3b8; cursor: not-allowed; }
+    .no-regs { text-align: center; padding: 40px; color: #94a3b8; font-size: 14px; }
+
+    /* Event edit form */
+    .edit-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .edit-form-grid .full { grid-column: 1 / -1; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .required-star { color: #ef4444; }
+
+    /* Tag input for programmes */
+    .tag-input-wrap { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; background: #fafafa; min-height: 46px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; cursor: text; transition: border-color 0.2s; }
+    .tag-input-wrap:focus-within { border-color: #2e7d32; background: white; box-shadow: 0 0 0 3px rgba(46,125,50,0.1); }
+    .tag { display: inline-flex; align-items: center; gap: 5px; background: #e8f5e9; color: #1b5e20; padding: 3px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+    .tag-x { cursor: pointer; opacity: 0.6; font-size: 15px; line-height: 1; }
+    .tag-x:hover { opacity: 1; }
+    .tag-text-input { border: none; outline: none; font-size: 13px; font-family: 'Inter', sans-serif; background: transparent; min-width: 100px; flex: 1; padding: 2px 4px; }
+    .tag-suggestions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .tag-suggestion { padding: 4px 12px; border: 1.5px dashed #c8e6c9; border-radius: 8px; font-size: 12px; font-weight: 600; color: #2e7d32; cursor: pointer; transition: all 0.2s; background: none; font-family: 'Inter', sans-serif; }
+    .tag-suggestion:hover { background: #e8f5e9; border-style: solid; }
+
+    /* Form actions */
+    .form-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 20px; padding: 32px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 24px; }
+
+    /* ── TOAST ── */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: #1a2332; color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 1000; transform: translateY(80px); opacity: 0; transition: all 0.3s; }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.green { background: #2e7d32; }
+
+    /* ── LOADING ── */
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-question-card {
+      background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px;
+      padding: 14px; margin-bottom: 10px;
+    }
+    .fq-empty {
+      text-align: center; padding: 14px; color: #94a3b8; font-size: 13px;
+      background: #f8fafc; border-radius: 10px; border: 1.5px dashed #e2e8f0;
+    }
+    .fq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .fq-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    textarea.form-input { resize: vertical; min-height: 70px; }
+
+    @media (max-width: 640px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .edit-form-grid { grid-template-columns: 1fr; }
+      .edit-form-grid .full { grid-column: 1; }
+      .event-detail-header { flex-direction: column; }
+      .fq-grid { grid-template-columns: 1fr; }
+      .fq-opts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">O</div>
+    <div>
+      <div class="nav-title">Open Day</div>
+      <div class="nav-school" id="nav-school-name"></div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="btn-sm btn-green" id="nav-new-event-btn" onclick="openCreateEventModal()" style="display:none">+ New Event</button>
+    <button class="btn-sm btn-ghost-sm" onclick="signOut()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LOGIN VIEW -->
+<div id="view-login">
+  <div class="login-card">
+    <div class="login-logo">🏫</div>
+    <div class="login-title">School Portal</div>
+    <div class="login-sub">Sign in to manage your Open Day events</div>
+    <div id="login-error"></div>
+    <div class="form-field">
+      <label for="inp-school-id">School ID</label>
+      <input class="form-input" type="text" id="inp-school-id" placeholder="e.g. SCH-001" autocomplete="username"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <div class="form-field">
+      <label for="inp-password">Password</label>
+      <input class="form-input" type="password" id="inp-password" placeholder="Your portal password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <button class="btn-full" id="login-btn" onclick="doLogin()">Sign In</button>
+    <p class="login-note">Need access? Contact <a href="mailto:hello@smartflowhk.com" style="color:#2e7d32">SmartFlow HK</a></p>
+  </div>
+</div>
+
+<!-- MAIN VIEWS (hidden until logged in) -->
+<div id="views-wrap" style="display:none">
+  <div class="main">
+
+    <!-- EVENTS VIEW -->
+    <div id="view-events" style="display:none">
+      <div class="page-header">
+        <div class="page-title" id="events-page-title">Your Events</div>
+        <button class="btn-sm btn-green" onclick="openCreateEventModal()">+ New Event</button>
+      </div>
+      <div id="events-grid" class="events-grid"></div>
+    </div>
+
+    <!-- EVENT DETAIL VIEW -->
+    <div id="view-event" style="display:none">
+      <button class="back-btn" onclick="showView('events')">← Back to Events</button>
+
+      <div class="event-detail-header">
+        <div>
+          <div class="event-detail-name" id="det-name"></div>
+          <div class="event-detail-meta" id="det-meta"></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span id="det-badge" class="badge"></span>
+          <button class="btn-sm btn-outline" onclick="openEditEventModal()">Edit Event</button>
+          <button class="btn-sm btn-outline" id="det-toggle-status-btn" onclick="toggleEventStatus()"></button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="det-total">0</div>
+          <div class="stat-lbl">Registered</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="det-attended" style="color:#166534">0</div>
+          <div class="stat-lbl">Attended</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="det-noshow" style="color:#991b1b">0</div>
+          <div class="stat-lbl">No-show</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="det-capacity">—</div>
+          <div class="stat-lbl">Capacity</div>
+          <div class="capacity-bar-wrap"><div class="capacity-bar" id="det-cap-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Share Link -->
+      <div class="share-box">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Booking Link — Share with Parents</div>
+          <div class="share-url" id="det-booking-url"></div>
+        </div>
+        <button class="copy-btn" onclick="copyBookingLink()">Copy</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" id="tab-regs" onclick="switchTab('regs')">Registrations</button>
+        <button class="tab" id="tab-details" onclick="switchTab('details')">Event Details</button>
+      </div>
+
+      <!-- Registrations Tab -->
+      <div id="tab-content-regs">
+        <div class="card" style="padding:20px">
+          <div class="toolbar">
+            <input class="search-input" type="text" id="reg-search" placeholder="Search by name or email…" oninput="renderRegs()">
+            <select class="filter-select" id="reg-filter-prog" onchange="renderRegs()">
+              <option value="">All Programmes</option>
+            </select>
+            <select class="filter-select" id="reg-filter-status" onchange="renderRegs()">
+              <option value="">All Statuses</option>
+              <option value="Registered">Registered</option>
+              <option value="Attended">Attended</option>
+              <option value="No-Show">No-Show</option>
+            </select>
+            <button class="btn-sm btn-outline" onclick="exportCSV()">Export CSV</button>
+            <button class="btn-sm btn-outline" onclick="loadRegistrations()">↺ Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Parent</th>
+                  <th>Contact</th>
+                  <th>Child</th>
+                  <th>Programme</th>
+                  <th>Status</th>
+                  <th>Check-in</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="regs-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Details Tab -->
+      <div id="tab-content-details" style="display:none">
+        <div class="card" style="padding:28px">
+          <div id="event-details-view"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CREATE/EDIT EVENT MODAL -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">New Event</div>
+    <div class="edit-form-grid">
+      <div class="full form-field">
+        <label class="form-label">Event Name <span class="required-star">*</span></label>
+        <input class="form-input" type="text" id="evt-name" placeholder="e.g. Open Day Spring 2026">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Date <span class="required-star">*</span></label>
+        <input class="form-input" type="date" id="evt-date">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Start Time <span class="required-star">*</span></label>
+        <input class="form-input" type="time" id="evt-start" value="10:00">
+      </div>
+      <div class="form-field">
+        <label class="form-label">End Time <span class="required-star">*</span></label>
+        <input class="form-input" type="time" id="evt-end" value="12:00">
+      </div>
+      <div class="full form-field">
+        <label class="form-label">Venue <span class="required-star">*</span></label>
+        <input class="form-input" type="text" id="evt-venue" placeholder="e.g. Main Campus — 123 Discovery Bay Road, Lantau Island">
+      </div>
+      <div class="full form-field">
+        <label class="form-label">Programmes <span class="required-star">*</span>
+          <span style="font-weight:400;color:#94a3b8;font-size:12px;margin-left:6px">Type and press Enter to add</span>
+        </label>
+        <div class="tag-input-wrap" id="prog-tag-wrap" onclick="document.getElementById('prog-tag-input').focus()">
+          <input class="tag-text-input" id="prog-tag-input" placeholder="Add programme…"
+            onkeydown="handleTagKey(event)" oninput="this.size = Math.max(this.value.length || 12, 12)">
+        </div>
+        <div class="tag-suggestions">
+          <button class="tag-suggestion" type="button" onclick="addTag('Early Years')">+ Early Years</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Primary')">+ Primary</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Secondary')">+ Secondary</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Kindergarten')">+ Kindergarten</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Nursery')">+ Nursery</button>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Capacity <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+        <input class="form-input" type="number" id="evt-capacity" placeholder="e.g. 100" min="1">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Admin Alert Email</label>
+        <input class="form-input" type="email" id="evt-admin-email" placeholder="you@school.edu.hk">
+      </div>
+    </div>
+    <!-- Form Builder -->
+    <div style="margin-top:20px;border-top:1px solid #f0f0f0;padding-top:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div class="form-label" style="margin:0">Custom Questions</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:2px">Extra questions specific to this event</div>
+        </div>
+        <button type="button" class="btn-sm btn-outline" onclick="addFormQuestion()" style="padding:5px 14px;font-size:12px">+ Add</button>
+      </div>
+      <div id="form-questions-list"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-sm btn-outline" onclick="closeModal()" style="padding:10px 20px">Cancel</button>
+      <button class="btn-sm btn-green" id="save-event-btn" onclick="saveEvent()" style="padding:10px 24px">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// CONFIG
+// ================================================================
+const CONFIG = {
+  n8nDomain:   'n8n.okahh.com',
+  bookingBase: 'https://openday.smartflowhk.com/book.html',
+};
+// ================================================================
+
+const state = {
+  school:        null,
+  events:        [],
+  selectedEvent: null,
+  regs:          [],
+  editingEventId: null,
+  programmes:    [],
+  formQuestions: [],
+  activeTab:     'regs',
+};
+
+// ── API ──────────────────────────────────────────────────────────
+async function api(method, endpoint, body) {
+  const url = `https://${CONFIG.n8nDomain}/webhook/${endpoint}`;
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(url, opts);
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (method === 'POST') {
+      // CORS fallback — try no-cors (for fire-and-forget writes)
+      try {
+        await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        return { success: true, cors: false };
+      } catch { return { success: false, error: err.message }; }
+    }
+    return { success: false, error: err.message };
+  }
+}
+
+function authParams() {
+  return `school_id=${encodeURIComponent(state.school.school_id)}&password=${encodeURIComponent(state.school.password)}`;
+}
+
+// ── AUTH ─────────────────────────────────────────────────────────
+async function doLogin() {
+  const schoolId = document.getElementById('inp-school-id').value.trim();
+  const password = document.getElementById('inp-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  if (!schoolId || !password) { errEl.textContent = 'Please enter your School ID and password.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  const res = await api('POST', 'openday-login', { school_id: schoolId, password });
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
+  if (res.success && res.school) {
+    state.school = { ...res.school, password };
+    state.events = res.events || [];
+    document.getElementById('nav-school-name').textContent = res.school.school_name;
+    document.getElementById('nav').style.display = 'flex';
+    document.getElementById('view-login').style.display = 'none';
+    document.getElementById('views-wrap').style.display = 'block';
+    showView('events');
+  } else {
+    errEl.textContent = res.message || 'Invalid School ID or password.';
+    errEl.style.display = 'block';
+  }
+}
+
+function signOut() {
+  state.school = null; state.events = []; state.selectedEvent = null;
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('views-wrap').style.display = 'none';
+  document.getElementById('view-login').style.display = 'flex';
+  document.getElementById('inp-password').value = '';
+}
+
+// ── VIEWS ────────────────────────────────────────────────────────
+function showView(v) {
+  ['events', 'event'].forEach(id => document.getElementById(`view-${id}`).style.display = 'none');
+  document.getElementById(`view-${v}`).style.display = 'block';
+  document.getElementById('nav-new-event-btn').style.display = v === 'events' ? 'inline-flex' : 'none';
+  if (v === 'events') renderEventCards();
+  if (v === 'event') renderEventDetail();
+}
+
+// ── EVENTS LIST ───────────────────────────────────────────────────
+function renderEventCards() {
+  const grid = document.getElementById('events-grid');
+  if (!state.events.length) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">📅</div>
+        <div class="empty-title">No events yet</div>
+        <div class="empty-sub">Create your first Open Day and start accepting registrations.</div>
+        <button class="btn-sm btn-green" style="padding:12px 24px;font-size:15px" onclick="openCreateEventModal()">+ Create First Event</button>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = state.events.map(ev => {
+    const regs = ev.reg_count || 0;
+    const attended = ev.attended_count || 0;
+    const noshow = ev.noshow_count || 0;
+    const statusBadge = ev.status === 'active' ? 'badge-active' : ev.status === 'closed' ? 'badge-closed' : 'badge-draft';
+    return `
+      <div class="event-card" onclick="viewEvent('${ev.event_id}')">
+        <div class="event-card-header">
+          <div class="event-card-name">${esc(ev.event_name)}</div>
+          <span class="badge ${statusBadge}">${ev.status || 'active'}</span>
+        </div>
+        <div class="event-card-date">📅 ${esc(ev.event_date_display || ev.event_date)} &nbsp;🕙 ${esc(ev.event_time_start)}–${esc(ev.event_time_end)}</div>
+        <div class="event-card-stats">
+          <div class="stat-mini"><div class="stat-mini-num">${regs}</div><div class="stat-mini-lbl">Registered</div></div>
+          <div class="stat-mini"><div class="stat-mini-num" style="color:#166534">${attended}</div><div class="stat-mini-lbl">Attended</div></div>
+          <div class="stat-mini"><div class="stat-mini-num" style="color:#991b1b">${noshow}</div><div class="stat-mini-lbl">No-show</div></div>
+        </div>
+        <div class="event-card-actions" onclick="event.stopPropagation()">
+          <button class="btn-sm btn-green" onclick="viewEvent('${ev.event_id}')">View →</button>
+          <button class="btn-sm btn-outline" onclick="copyLink('${ev.event_id}')">Copy Link</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function viewEvent(eventId) {
+  const ev = state.events.find(e => e.event_id === eventId);
+  if (!ev) return;
+  state.selectedEvent = ev;
+  state.regs = [];
+  showView('event');
+  await loadRegistrations();
+}
+
+async function loadRegistrations() {
+  const ev = state.selectedEvent;
+  if (!ev) return;
+  const res = await api('GET', `openday-event-regs?event_id=${ev.event_id}&${authParams()}`);
+  state.regs = res.registrations || [];
+  updateEventStats();
+  renderRegs();
+}
+
+function renderEventDetail() {
+  const ev = state.selectedEvent;
+  if (!ev) return;
+  document.getElementById('det-name').textContent = ev.event_name;
+  document.getElementById('det-meta').textContent = `📅 ${ev.event_date_display || ev.event_date}  ·  🕙 ${ev.event_time_start}–${ev.event_time_end}  ·  📍 ${ev.venue || ''}`;
+  const badgeEl = document.getElementById('det-badge');
+  badgeEl.textContent = ev.status || 'active';
+  badgeEl.className = 'badge ' + (ev.status === 'active' ? 'badge-active' : ev.status === 'closed' ? 'badge-closed' : 'badge-draft');
+  const toggleBtn = document.getElementById('det-toggle-status-btn');
+  toggleBtn.textContent = ev.status === 'closed' ? 'Reopen' : 'Close Event';
+
+  const url = `${CONFIG.bookingBase}?event=${ev.event_id}`;
+  document.getElementById('det-booking-url').textContent = url;
+
+  // Programme filter
+  const progFilter = document.getElementById('reg-filter-prog');
+  const progs = (ev.programmes || '').split(',').map(p => p.trim()).filter(Boolean);
+  progFilter.innerHTML = '<option value="">All Programmes</option>' + progs.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+
+  // Event details tab
+  document.getElementById('event-details-view').innerHTML = buildEventDetailsHTML(ev);
+}
+
+function buildEventDetailsHTML(ev) {
+  const rows = [
+    ['Event Name', ev.event_name],
+    ['Date', ev.event_date_display || ev.event_date],
+    ['Time', `${ev.event_time_start} – ${ev.event_time_end}`],
+    ['Venue', ev.venue || '—'],
+    ['Programmes', ev.programmes || '—'],
+    ['Capacity', ev.capacity || 'Unlimited'],
+    ['Status', ev.status || 'active'],
+    ['Created', ev.created_date ? new Date(ev.created_date).toLocaleDateString('en-HK') : '—'],
+  ];
+  return `<table style="width:100%;font-size:14px;border-collapse:collapse">
+    ${rows.map(([k,v]) => `<tr>
+      <td style="padding:10px 0;color:#64748b;font-weight:600;width:140px;vertical-align:top">${k}</td>
+      <td style="padding:10px 0;font-weight:500">${esc(String(v))}</td>
+    </tr>`).join('<tr><td colspan="2" style="border-top:1px solid #f0f0f0;padding:0"></td></tr>')}
+  </table>`;
+}
+
+function updateEventStats() {
+  const total = state.regs.length;
+  const attended = state.regs.filter(r => r.attendance_status === 'Attended').length;
+  const noshow = state.regs.filter(r => r.attendance_status === 'No-Show').length;
+  const cap = parseInt(state.selectedEvent?.capacity) || 0;
+  document.getElementById('det-total').textContent = total;
+  document.getElementById('det-attended').textContent = attended;
+  document.getElementById('det-noshow').textContent = noshow;
+  document.getElementById('det-capacity').textContent = cap || '—';
+  if (cap) {
+    const pct = Math.min((total / cap) * 100, 100);
+    document.getElementById('det-cap-bar').style.width = pct + '%';
+  }
+}
+
+function renderRegs() {
+  const search = document.getElementById('reg-search').value.toLowerCase();
+  const progFilter = document.getElementById('reg-filter-prog').value;
+  const statusFilter = document.getElementById('reg-filter-status').value;
+  let regs = state.regs.filter(r => {
+    if (search && !`${r.parent_name} ${r.email} ${r.child_name}`.toLowerCase().includes(search)) return false;
+    if (progFilter && r.programme !== progFilter) return false;
+    if (statusFilter && r.attendance_status !== statusFilter) return false;
+    return true;
+  });
+  const tbody = document.getElementById('regs-tbody');
+  if (!regs.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="no-regs">${state.regs.length ? 'No results match your filter.' : 'No registrations yet.'}</td></tr>`;
+    return;
+  }
+  let formFields = [];
+  try { formFields = JSON.parse(state.selectedEvent?.form_fields || '[]'); } catch {}
+
+  tbody.innerHTML = regs.map(r => {
+    const statusClass = r.attendance_status === 'Attended' ? 'status-attended' : r.attendance_status === 'No-Show' ? 'status-noshow' : 'status-registered';
+    const checkedIn = r.attendance_status === 'Attended';
+    const checkinTime = r.check_in_time ? new Date(r.check_in_time).toLocaleTimeString('en-HK', { hour:'2-digit', minute:'2-digit' }) : '—';
+    let customHtml = '';
+    if (r.custom_answers && formFields.length) {
+      try {
+        const ans = typeof r.custom_answers === 'string' ? JSON.parse(r.custom_answers) : r.custom_answers;
+        customHtml = formFields.map(f => {
+          const v = ans[f.id]; if (!v) return '';
+          return `<div style="font-size:12px;margin-bottom:3px"><span style="font-weight:600;color:#64748b">${esc(f.label_en)}:</span> ${esc(String(v))}</div>`;
+        }).filter(Boolean).join('');
+      } catch {}
+    }
+    return `<tr>
+      <td><div style="font-weight:600">${esc(r.parent_name)}</div></td>
+      <td><div style="color:#64748b;font-size:12px">${esc(r.email)}</div><div style="color:#64748b;font-size:12px">${esc(r.phone || '')}</div></td>
+      <td><div style="font-weight:500">${esc(r.child_name)}</div><div style="color:#94a3b8;font-size:12px">${esc(r.child_age || '')}</div></td>
+      <td>${esc(r.programme || '—')}</td>
+      <td><span class="status-pill ${statusClass}">${r.attendance_status}</span></td>
+      <td style="font-size:12px;color:#64748b">${checkinTime}</td>
+      <td>
+        <button class="btn-checkin" onclick="doCheckIn('${r.registration_id}')" ${checkedIn ? 'disabled' : ''}>
+          ${checkedIn ? '✓ Done' : 'Check In'}
+        </button>
+        ${customHtml ? `<button onclick="toggleCustomAnswers('${r.registration_id}')" style="background:none;border:none;color:#2e7d32;font-size:11px;cursor:pointer;display:block;margin-top:4px;font-family:Inter,sans-serif;padding:0">▶ Details</button>` : ''}
+      </td>
+    </tr>
+    ${customHtml ? `<tr id="ca-${r.registration_id}" style="display:none"><td colspan="7" style="padding:8px 14px 12px;background:#f0faf0;border-bottom:1px solid #f0f0f0">${customHtml}</td></tr>` : ''}`;
+  }).join('');
+}
+
+async function doCheckIn(regId) {
+  const ev = state.selectedEvent;
+  const res = await api('POST', 'openday-checkin', {
+    registration_id: regId,
+    event_id: ev.event_id,
+    school_id: state.school.school_id,
+    password: state.school.password
+  });
+  if (res.success || res.cors === false) {
+    const reg = state.regs.find(r => r.registration_id === regId);
+    if (reg) { reg.attendance_status = 'Attended'; reg.check_in_time = new Date().toISOString(); }
+    updateEventStats();
+    renderRegs();
+    toast('✓ Checked in!', true);
+  } else {
+    toast('Check-in failed. Please try again.');
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  state.activeTab = tab;
+  ['regs','details'].forEach(t => {
+    document.getElementById(`tab-content-${t}`).style.display = t === tab ? 'block' : 'none';
+    document.getElementById(`tab-${t}`).className = 'tab' + (t === tab ? ' active' : '');
+  });
+}
+
+// ── CREATE / EDIT EVENT ──────────────────────────────────────────
+function openCreateEventModal() {
+  state.editingEventId = null;
+  state.programmes = ['Early Years', 'Primary', 'Secondary'];
+  document.getElementById('modal-title').textContent = 'New Event';
+  document.getElementById('evt-name').value = '';
+  document.getElementById('evt-date').value = '';
+  document.getElementById('evt-start').value = '10:00';
+  document.getElementById('evt-end').value = '12:00';
+  document.getElementById('evt-venue').value = '';
+  document.getElementById('evt-capacity').value = '';
+  document.getElementById('evt-admin-email').value = state.school?.admin_email || '';
+  state.formQuestions = [];
+  renderTags();
+  renderFormQuestions();
+  document.getElementById('event-modal').classList.add('open');
+}
+
+function openEditEventModal() {
+  const ev = state.selectedEvent;
+  if (!ev) return;
+  state.editingEventId = ev.event_id;
+  state.programmes = (ev.programmes || '').split(',').map(p => p.trim()).filter(Boolean);
+  document.getElementById('modal-title').textContent = 'Edit Event';
+  document.getElementById('evt-name').value = ev.event_name || '';
+  document.getElementById('evt-date').value = ev.event_date || '';
+  document.getElementById('evt-start').value = ev.event_time_start || '10:00';
+  document.getElementById('evt-end').value = ev.event_time_end || '12:00';
+  document.getElementById('evt-venue').value = ev.venue || '';
+  document.getElementById('evt-capacity').value = ev.capacity || '';
+  document.getElementById('evt-admin-email').value = ev.admin_email || '';
+  try { state.formQuestions = JSON.parse(ev.form_fields || '[]'); } catch { state.formQuestions = []; }
+  renderTags();
+  renderFormQuestions();
+  document.getElementById('event-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('event-modal').classList.remove('open'); }
+
+async function saveEvent() {
+  const name = document.getElementById('evt-name').value.trim();
+  const date = document.getElementById('evt-date').value;
+  const start = document.getElementById('evt-start').value;
+  const end = document.getElementById('evt-end').value;
+  const venue = document.getElementById('evt-venue').value.trim();
+  if (!name || !date || !start || !end || !venue || !state.programmes.length) {
+    toast('Please fill in all required fields.'); return;
+  }
+  const btn = document.getElementById('save-event-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  const dateObj = new Date(date + 'T00:00:00');
+  const displayDate = dateObj.toLocaleDateString('en-HK', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const payload = {
+    school_id:        state.school.school_id,
+    password:         state.school.password,
+    event_name:       name,
+    event_date:       date,
+    event_time_start: start,
+    event_time_end:   end,
+    event_date_display: displayDate,
+    venue:            venue,
+    programmes:       state.programmes.join(','),
+    capacity:         document.getElementById('evt-capacity').value || '',
+    admin_email:      document.getElementById('evt-admin-email').value.trim() || state.school.admin_email,
+    form_fields:      JSON.stringify(state.formQuestions),
+  };
+  let res;
+  if (state.editingEventId) {
+    payload.event_id = state.editingEventId;
+    res = await api('POST', 'openday-update-event', payload);
+  } else {
+    res = await api('POST', 'openday-create-event', payload);
+  }
+  btn.disabled = false; btn.textContent = 'Save Event';
+  if (res.success || res.cors === false) {
+    closeModal();
+    toast(state.editingEventId ? 'Event updated!' : 'Event created!', true);
+    const updated = await api('GET', `openday-school-events?${authParams()}`);
+    state.events = updated.events || state.events;
+    if (state.editingEventId) {
+      const fresh = state.events.find(e => e.event_id === state.editingEventId);
+      if (fresh) { state.selectedEvent = fresh; showView('event'); }
+    } else {
+      showView('events');
+    }
+  } else {
+    toast('Save failed. Check your connection.');
+  }
+}
+
+async function toggleEventStatus() {
+  const ev = state.selectedEvent;
+  const newStatus = ev.status === 'closed' ? 'active' : 'closed';
+  const res = await api('POST', 'openday-update-event', {
+    event_id: ev.event_id, school_id: state.school.school_id, password: state.school.password,
+    status: newStatus
+  });
+  if (res.success || res.cors === false) {
+    ev.status = newStatus;
+    const inList = state.events.find(e => e.event_id === ev.event_id);
+    if (inList) inList.status = newStatus;
+    renderEventDetail();
+    toast(newStatus === 'closed' ? 'Event closed — booking link deactivated.' : 'Event reopened!', true);
+  }
+}
+
+// ── PROGRAMME TAGS ─────────────────────────────────────────────
+function renderTags() {
+  const wrap = document.getElementById('prog-tag-wrap');
+  const input = document.getElementById('prog-tag-input');
+  wrap.querySelectorAll('.tag').forEach(t => t.remove());
+  state.programmes.forEach(p => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${esc(p)} <span class="tag-x" onclick="removeTag('${esc(p)}')">×</span>`;
+    wrap.insertBefore(tag, input);
+  });
+}
+
+function addTag(val) {
+  const v = val || document.getElementById('prog-tag-input').value.trim();
+  if (!v || state.programmes.includes(v)) { document.getElementById('prog-tag-input').value = ''; return; }
+  state.programmes.push(v);
+  document.getElementById('prog-tag-input').value = '';
+  renderTags();
+}
+
+function removeTag(val) {
+  state.programmes = state.programmes.filter(p => p !== val);
+  renderTags();
+}
+
+function handleTagKey(e) {
+  if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); }
+  if (e.key === 'Backspace' && !e.target.value && state.programmes.length) {
+    state.programmes.pop(); renderTags();
+  }
+}
+
+// ── SHARE / EXPORT ────────────────────────────────────────────────
+function copyBookingLink() {
+  const url = `${CONFIG.bookingBase}?event=${state.selectedEvent.event_id}`;
+  copyToClipboard(url, 'Link copied!');
+}
+
+function copyLink(eventId) {
+  copyToClipboard(`${CONFIG.bookingBase}?event=${eventId}`, 'Link copied!');
+}
+
+function copyToClipboard(text, msg) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+  });
+  toast(msg, true);
+}
+
+function exportCSV() {
+  const ev = state.selectedEvent;
+  const headers = ['Registration ID','Parent Name','Email','Phone','Language','Child Name','Child Age','Programme','Status','Check-in Time','How Heard','Registered'];
+  const rows = state.regs.map(r => [
+    r.registration_id, r.parent_name, r.email, r.phone, r.language,
+    r.child_name, r.child_age, r.programme, r.attendance_status,
+    r.check_in_time || '', r.how_did_you_hear, r.registration_date
+  ].map(v => `"${String(v||'').replace(/"/g,'""')}"`));
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `${ev.event_id}_registrations.csv`;
+  a.click();
+  toast('CSV exported!', true);
+}
+
+// ── UTILS ────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+let toastTimer;
+function toast(msg, green = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (green ? ' green' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 2800);
+}
+
+// ── FORM BUILDER ─────────────────────────────────────────────────
+function addFormQuestion() {
+  state.formQuestions.push({ id: 'q_' + Date.now(), type: 'text', label_en: '', label_zh: '', options_en: [], options_zh: [], required: false });
+  renderFormQuestions();
+}
+
+function removeFormQuestion(id) {
+  state.formQuestions = state.formQuestions.filter(q => q.id !== id);
+  renderFormQuestions();
+}
+
+function updateFormQuestion(id, field, value) {
+  const q = state.formQuestions.find(q => q.id === id);
+  if (!q) return;
+  if (field === 'options_en_raw') q.options_en = value.split('\n').map(s => s.trim()).filter(Boolean);
+  else if (field === 'options_zh_raw') q.options_zh = value.split('\n').map(s => s.trim()).filter(Boolean);
+  else if (field === 'required') q.required = value;
+  else q[field] = value;
+  if (field === 'type') renderFormQuestions();
+}
+
+function renderFormQuestions() {
+  const list = document.getElementById('form-questions-list');
+  if (!list) return;
+  if (!state.formQuestions.length) {
+    list.innerHTML = '<div class="fq-empty">No custom questions yet. Click + Add to collect extra info from parents.</div>';
+    return;
+  }
+  list.innerHTML = state.formQuestions.map((q, i) => `
+    <div class="form-question-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Question ${i + 1}</span>
+        <button type="button" onclick="removeFormQuestion('${q.id}')" style="background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">✕ Remove</button>
+      </div>
+      <div class="fq-grid">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">English Label</label>
+          <input class="form-input" type="text" value="${esc(q.label_en)}" oninput="updateFormQuestion('${q.id}','label_en',this.value)" placeholder="e.g. Dietary requirements" style="font-size:13px;padding:9px 11px">
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">中文標籤</label>
+          <input class="form-input" type="text" value="${esc(q.label_zh)}" oninput="updateFormQuestion('${q.id}','label_zh',this.value)" placeholder="例：飲食需求" style="font-size:13px;padding:9px 11px">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">Type</label>
+          <select class="filter-select" style="width:100%;font-size:13px" onchange="updateFormQuestion('${q.id}','type',this.value)">
+            <option value="text" ${q.type === 'text' ? 'selected' : ''}>Short Text</option>
+            <option value="dropdown" ${q.type === 'dropdown' ? 'selected' : ''}>Dropdown</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-top:22px">
+          <input type="checkbox" id="req-${q.id}" ${q.required ? 'checked' : ''} onchange="updateFormQuestion('${q.id}','required',this.checked)" style="width:16px;height:16px;cursor:pointer">
+          <label for="req-${q.id}" style="font-size:13px;font-weight:600;cursor:pointer">Required</label>
+        </div>
+      </div>
+      ${q.type === 'dropdown' ? `
+      <div class="fq-opts-grid" style="margin-top:10px">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">Options (EN) — one per line</label>
+          <textarea class="form-input" rows="3" oninput="updateFormQuestion('${q.id}','options_en_raw',this.value)" placeholder="Option 1&#10;Option 2&#10;Option 3" style="font-size:13px;padding:9px 11px">${esc((q.options_en || []).join('\n'))}</textarea>
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">選項（中文）— 每行一個</label>
+          <textarea class="form-input" rows="3" oninput="updateFormQuestion('${q.id}','options_zh_raw',this.value)" placeholder="選項 1&#10;選項 2&#10;選項 3" style="font-size:13px;padding:9px 11px">${esc((q.options_zh || []).join('\n'))}</textarea>
+        </div>
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+function toggleCustomAnswers(regId) {
+  const row = document.getElementById('ca-' + regId);
+  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// Close modal on overlay click
+document.getElementById('event-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
