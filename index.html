@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Day Platform — SmartFlow HK</title>
+  <meta name="description" content="A self-service open day registration platform for Hong Kong international schools. Custom forms, bilingual support, check-in, and email confirmations — all in one system.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: #1a2332; background: white; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(26,35,50,0.97); backdrop-filter: blur(8px);
+      padding: 0 5vw; height: 62px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: linear-gradient(135deg, #1b5e20, #00796b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: white;
+    }
+    .nav-name { font-size: 15px; font-weight: 700; color: white; }
+    .nav-links { display: flex; gap: 6px; align-items: center; }
+    .nav-link { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #94a3b8; text-decoration: none; transition: color 0.2s; }
+    .nav-link:hover { color: white; }
+    .nav-cta {
+      padding: 9px 18px; border-radius: 9px;
+      background: linear-gradient(135deg, #2e7d32, #00796b);
+      color: white; font-size: 13px; font-weight: 700;
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.88; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(160deg, #1a2332 0%, #1e3a2f 60%, #1a2332 100%);
+      padding: 100px 5vw 90px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(46,125,50,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(46,125,50,0.2); border: 1px solid rgba(46,125,50,0.4);
+      color: #81c784; font-size: 12px; font-weight: 700;
+      padding: 5px 14px; border-radius: 20px; letter-spacing: 0.5px;
+      text-transform: uppercase; margin-bottom: 28px;
+    }
+    .hero-title {
+      font-size: clamp(36px, 6vw, 64px); font-weight: 900;
+      color: white; line-height: 1.1; margin-bottom: 12px;
+      letter-spacing: -1.5px;
+    }
+    .hero-title span { color: #66bb6a; }
+    .hero-sub-zh {
+      font-size: clamp(16px, 2.5vw, 22px); color: #81c784;
+      font-weight: 600; margin-bottom: 22px; letter-spacing: 1px;
+    }
+    .hero-desc {
+      font-size: clamp(15px, 1.8vw, 18px); color: #94a3b8;
+      max-width: 600px; margin: 0 auto 40px; line-height: 1.7;
+    }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 14px 28px; border-radius: 11px;
+      background: linear-gradient(135deg, #2e7d32, #00796b);
+      color: white; font-size: 15px; font-weight: 700;
+      text-decoration: none; transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(46,125,50,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(46,125,50,0.45); }
+    .btn-secondary {
+      padding: 14px 28px; border-radius: 11px;
+      background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.15);
+      color: white; font-size: 15px; font-weight: 700;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+    .hero-note { margin-top: 20px; font-size: 13px; color: #475569; }
+
+    /* DEMO STRIP */
+    .demo-strip {
+      background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+      padding: 16px 5vw; text-align: center;
+    }
+    .demo-strip p { font-size: 13px; color: #64748b; }
+    .demo-strip a { color: #2e7d32; font-weight: 600; text-decoration: none; }
+    .demo-strip a:hover { text-decoration: underline; }
+
+    /* SECTIONS */
+    section { padding: 80px 5vw; }
+    .section-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+      color: #2e7d32; margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(26px, 4vw, 40px); font-weight: 900;
+      letter-spacing: -1px; line-height: 1.15; margin-bottom: 14px;
+    }
+    .section-desc { font-size: 16px; color: #64748b; line-height: 1.7; max-width: 560px; }
+    .section-center { text-align: center; }
+    .section-center .section-desc { margin: 0 auto; }
+
+    /* FEATURES GRID */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px; margin-top: 52px;
+    }
+    .feature-card {
+      background: white; border: 1.5px solid #e2e8f0; border-radius: 16px;
+      padding: 28px; transition: all 0.25s;
+    }
+    .feature-card:hover { border-color: #a5d6a7; box-shadow: 0 4px 20px rgba(46,125,50,0.1); transform: translateY(-2px); }
+    .feature-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      background: linear-gradient(135deg, #e8f5e9, #e0f2f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 16px;
+    }
+    .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 7px; }
+    .feature-desc { font-size: 14px; color: #64748b; line-height: 1.6; }
+
+    /* HOW IT WORKS */
+    .how-bg { background: #f8fafc; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; margin-top: 52px; }
+    .step { text-align: center; }
+    .step-num {
+      width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 18px;
+      background: linear-gradient(135deg, #1b5e20, #00796b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 900; color: white;
+    }
+    .step-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step-desc { font-size: 14px; color: #64748b; line-height: 1.6; }
+    .step-connector { display: none; }
+
+    /* WHO IT'S FOR */
+    .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 44px; }
+    .audience-card {
+      background: linear-gradient(135deg, #1a2332, #1e3a2f);
+      border-radius: 16px; padding: 26px; color: white;
+    }
+    .audience-role { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #81c784; margin-bottom: 10px; }
+    .audience-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .audience-desc { font-size: 14px; color: #94a3b8; line-height: 1.6; }
+    .audience-list { list-style: none; margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .audience-list li { font-size: 13px; color: #cbd5e1; display: flex; align-items: flex-start; gap: 8px; }
+    .audience-list li::before { content: '✓'; color: #66bb6a; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    /* COMPARISON */
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 44px; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .compare-table th { padding: 16px 20px; font-size: 13px; font-weight: 700; text-align: center; }
+    .compare-table th:first-child { text-align: left; }
+    .compare-table td { padding: 14px 20px; font-size: 14px; border-top: 1px solid #f1f5f9; }
+    .compare-table td:not(:first-child) { text-align: center; }
+    .compare-table thead { background: #1a2332; color: white; }
+    .compare-table thead th:nth-child(2) { background: #2e7d32; }
+    .compare-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .check { color: #2e7d32; font-size: 17px; font-weight: 900; }
+    .cross { color: #94a3b8; font-size: 17px; }
+    .partial { color: #f59e0b; font-size: 13px; font-weight: 600; }
+    .col-highlight { background: rgba(46,125,50,0.04) !important; }
+
+    /* CTA */
+    .cta-section {
+      background: linear-gradient(160deg, #1a2332 0%, #1e3a2f 100%);
+      text-align: center; padding: 90px 5vw;
+    }
+    .cta-title { font-size: clamp(28px, 4vw, 46px); font-weight: 900; color: white; letter-spacing: -1px; margin-bottom: 14px; }
+    .cta-title span { color: #66bb6a; }
+    .cta-desc { font-size: 16px; color: #94a3b8; max-width: 500px; margin: 0 auto 36px; line-height: 1.7; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .cta-email { margin-top: 22px; font-size: 13px; color: #64748b; }
+    .cta-email a { color: #81c784; text-decoration: none; }
+
+    /* FOOTER */
+    footer {
+      background: #0f1720; padding: 36px 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 9px; }
+    .footer-logo {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: linear-gradient(135deg, #1b5e20, #00796b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: white;
+    }
+    .footer-name { font-size: 13px; font-weight: 700; color: #64748b; }
+    .footer-right { font-size: 12px; color: #374151; }
+
+    @media (max-width: 640px) {
+      .nav-links .nav-link { display: none; }
+      .compare-table { font-size: 12px; }
+      .compare-table th, .compare-table td { padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="#">
+      <div class="nav-logo">SF</div>
+      <span class="nav-name">SmartFlow HK</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#features">Features</a>
+      <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="#compare">Compare</a>
+      <a class="nav-cta" href="school.html">School Login →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">🏫 Built for Hong Kong Schools</div>
+    <h1 class="hero-title">Run Your Open Day<br><span>Without the Chaos.</span></h1>
+    <p class="hero-sub-zh">開放日報名系統 — 簡單、雙語、自助管理</p>
+    <p class="hero-desc">A self-service registration platform designed for HK international schools. Create events, collect registrations, manage check-in — all in one place. Set up once, run every event yourself.</p>
+    <div class="hero-btns">
+      <a class="btn-primary" href="school.html">School Portal →</a>
+      <a class="btn-secondary" href="#how">See how it works</a>
+    </div>
+    <p class="hero-note">No per-registration fees &nbsp;·&nbsp; Bilingual EN / 中文 &nbsp;·&nbsp; Your data stays in Google Sheets</p>
+  </div>
+
+  <!-- DEMO STRIP -->
+  <div class="demo-strip">
+    <p>Want to see a live demo? Contact us at <a href="mailto:gsheetstraining101@gmail.com">gsheetstraining101@gmail.com</a> — we'll walk you through everything.</p>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything your admissions team needs</h2>
+    <p class="section-desc">Built around how HK schools actually run open days — multiple events per year, different audiences, different questions.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Custom Registration Forms</div>
+        <div class="feature-desc">Add your own questions to each event — text fields, dropdowns, required or optional. Every event can have a different form.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Bilingual — EN / 中文</div>
+        <div class="feature-desc">Parents switch between English and Chinese instantly. All labels, questions, and options display in their preferred language.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <div class="feature-title">Event-Day Check-In</div>
+        <div class="feature-desc">Staff search by name and tap to mark attendance. No paper lists, no spreadsheet hunting. Works on any phone or tablet.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📧</div>
+        <div class="feature-title">Automatic Confirmations</div>
+        <div class="feature-desc">Every parent receives a bilingual confirmation email with event details the moment they register. No manual sending.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">CSV Export</div>
+        <div class="feature-desc">Download the full registrations list for any event — including all custom answers — with one click. Ready for mail merge or reporting.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">Shareable Booking Links</div>
+        <div class="feature-desc">Each event gets a unique URL your team can post on your website, WeChat, or email blast. Parents register in under 2 minutes.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏫</div>
+        <div class="feature-title">Manage Multiple Events</div>
+        <div class="feature-desc">Run 10+ events a year? Each gets its own form, its own registrations, and its own booking link. All in one portal.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">School Login, Your Data</div>
+        <div class="feature-desc">Your school has its own login. All your registrations live in a Google Sheet you own. No vendor lock-in, no shared databases.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="how-bg">
+    <div class="section-center">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">Live in a day. Running forever.</h2>
+      <p class="section-desc">We set everything up once. After that, your admissions team handles every event themselves — no IT, no developers, no ongoing fees.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">We onboard your school</div>
+        <div class="step-desc">We set up your school account, connect your Google Sheet, and walk your team through the portal. Takes about an hour.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">You create your event</div>
+        <div class="step-desc">Log in to the school portal, fill in event details, add your custom questions, and publish. Takes 5 minutes.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Share the booking link</div>
+        <div class="step-desc">Post the link on your website, WeChat, or newsletter. Parents register in their language. Confirmations send automatically.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">Check in on the day</div>
+        <div class="step-desc">Staff use the portal to check in families as they arrive. See live attendance counts. Export the full list after the event.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO IT'S FOR -->
+  <section>
+    <div class="section-label">Who it's for</div>
+    <h2 class="section-title">Designed for everyone in the room</h2>
+    <div class="audience-grid">
+      <div class="audience-card">
+        <div class="audience-role">Admissions Team</div>
+        <div class="audience-title">Run every open day yourself</div>
+        <div class="audience-desc">No more emailing IT or waiting for a developer. Create events, customise forms, download data — all from your browser.</div>
+        <ul class="audience-list">
+          <li>Create and edit events in minutes</li>
+          <li>Custom questions per event</li>
+          <li>Download CSV with one click</li>
+        </ul>
+      </div>
+      <div class="audience-card">
+        <div class="audience-role">Parents & Families</div>
+        <div class="audience-title">Book in under 2 minutes</div>
+        <div class="audience-desc">Clean, mobile-friendly form in English or Chinese. No account needed. Instant confirmation email with all the details.</div>
+        <ul class="audience-list">
+          <li>English / 中文 toggle</li>
+          <li>Mobile-optimised booking</li>
+          <li>Bilingual confirmation email</li>
+        </ul>
+      </div>
+      <div class="audience-card">
+        <div class="audience-role">Reception / Door Staff</div>
+        <div class="audience-title">Check in families in seconds</div>
+        <div class="audience-desc">Search by name on any phone or tablet. One tap marks attendance. No paper, no printer, no spreadsheet scrolling.</div>
+        <ul class="audience-list">
+          <li>Works on any device</li>
+          <li>Search by name instantly</li>
+          <li>Live attendance count</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section id="compare" class="how-bg">
+    <div class="section-center">
+      <div class="section-label">Compare</div>
+      <h2 class="section-title">Why not just use Google Forms or Eventbrite?</h2>
+      <p class="section-desc">Both are great tools — but neither was built for school open days. Here's how they compare.</p>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:35%">Feature</th>
+          <th>Open Day Platform</th>
+          <th>Google Forms</th>
+          <th>Eventbrite</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bilingual EN / 中文</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="partial">Partial</span></td>
+        </tr>
+        <tr>
+          <td>Per-event custom forms</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>Built-in check-in tool</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Bilingual confirmation email</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>School-managed portal</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Data in your own Google Sheet</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+        <tr>
+          <td>Per-registration fees</td>
+          <td class="col-highlight"><span style="color:#2e7d32;font-weight:700">None</span></td>
+          <td><span style="color:#2e7d32;font-weight:700">None</span></td>
+          <td><span style="color:#ef4444;font-weight:700">Yes</span></td>
+        </tr>
+        <tr>
+          <td>Multiple events in one system</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="partial">Manual</span></td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>CSV export with custom answers</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Built for HK schools</td>
+          <td class="col-highlight"><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2 class="cta-title">Ready to run a better<br><span>open day?</span></h2>
+    <p class="cta-desc">Get in touch and we'll set up your school in one session. No long contracts, no technical knowledge required.</p>
+    <div class="cta-btns">
+      <a class="btn-primary" href="mailto:gsheetstraining101@gmail.com">Request a Demo →</a>
+      <a class="btn-secondary" href="school.html">School Login</a>
+    </div>
+    <p class="cta-email">Or email us directly: <a href="mailto:gsheetstraining101@gmail.com">gsheetstraining101@gmail.com</a></p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <div class="footer-logo">SF</div>
+      <span class="footer-name">SmartFlow HK &mdash; Open Day Platform</span>
+    </div>
+    <div class="footer-right">© 2026 SmartFlow HK. All rights reserved.</div>
+  </footer>
+
+</body>
+</html>
