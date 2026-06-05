@@ -3,9 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Day Platform — SmartFlow HK</title>
-  <meta name="description" content="A self-service open day registration platform for Hong Kong local and international schools. Custom forms, bilingual support, QR check-in, and email confirmations — all in one system.">
+  <title>Open Day Registration System for Hong Kong Schools | Open Day Platform</title>
+  <meta name="description" content="Replace Google Forms with a bilingual EN/中文 open day registration system built for HK local and international schools. QR check-in, custom forms, automatic confirmation emails, zero per-registration fees. Book a free demo.">
+  <meta property="og:title" content="Open Day Registration System for Hong Kong Schools">
+  <meta property="og:description" content="Bilingual open day registration, QR check-in, and custom forms — built for HK schools. No per-registration fees. Book a free demo.">
+  <meta property="og:url" content="https://openday.smartflowhk.com">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://openday.smartflowhk.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Open Day Platform",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Bilingual open day registration system for Hong Kong local and international schools. QR check-in, custom forms, automatic confirmation emails.",
+    "offers": { "@type": "Offer", "price": "4000", "priceCurrency": "HKD", "priceSpecification": { "@type": "UnitPriceSpecification", "price": "4000", "priceCurrency": "HKD", "unitText": "year" } },
+    "provider": { "@type": "Organization", "name": "SmartFlow HK", "url": "https://smartflowhk.com", "areaServed": "HK" }
+  }
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -450,6 +467,85 @@
       .sticky-bar-secondary { display: none; }
     }
 
+    /* TRUST ROW */
+    .trust-row {
+      background: white; border-bottom: 1px solid #e2e8f0;
+      padding: 18px 5vw; display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 8px 28px;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 600; color: #374151;
+    }
+    .trust-item span { font-size: 15px; }
+    .trust-divider { color: #e2e8f0; font-size: 18px; }
+
+    /* ROI STATS */
+    .roi-section { background: linear-gradient(135deg, #1a2332 0%, #1e3a2f 100%); padding: 60px 5vw; }
+    .roi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 40px; max-width: 900px; margin-left: auto; margin-right: auto; }
+    .roi-card { text-align: center; padding: 32px 20px; }
+    .roi-num { font-size: clamp(42px, 6vw, 64px); font-weight: 900; color: #66bb6a; line-height: 1; letter-spacing: -2px; }
+    .roi-unit { font-size: 18px; font-weight: 700; color: #81c784; margin-left: 2px; }
+    .roi-label { font-size: 14px; color: #94a3b8; margin-top: 10px; line-height: 1.5; }
+    .roi-divider { width: 1px; background: rgba(255,255,255,0.08); margin: 20px 0; }
+
+    /* TESTIMONIAL */
+    .testimonial-section { background: #f1f5f9; padding: 60px 5vw; }
+    .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 36px; }
+    .testimonial-card {
+      background: white; border-radius: 16px; padding: 28px;
+      border: 1.5px solid #e2e8f0; position: relative;
+    }
+    .testimonial-card.pilot { border-color: #c8e6c9; background: #f0faf0; }
+    .quote-mark { font-size: 56px; color: #dcfce7; font-family: Georgia, serif; line-height: 1; margin-bottom: -10px; }
+    .testimonial-text { font-size: 15px; color: #374151; line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .author-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #e8f5e9, #e0f2f1); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .author-name { font-size: 14px; font-weight: 700; color: #1a2332; }
+    .author-role { font-size: 12px; color: #64748b; }
+    .pilot-badge { display: inline-block; background: #dcfce7; color: #166534; font-size: 10px; font-weight: 800; padding: 2px 9px; border-radius: 10px; letter-spacing: 0.5px; margin-bottom: 14px; }
+
+    /* FOOTER REBUILD */
+    footer {
+      background: #0a1118; padding: 52px 5vw 28px;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr;
+      gap: 40px; margin-bottom: 40px;
+    }
+    .footer-col-title { font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+    .footer-brand-desc { font-size: 13px; color: #475569; line-height: 1.7; margin-top: 12px; max-width: 240px; }
+    .footer-links { display: flex; flex-direction: column; gap: 9px; }
+    .footer-link { font-size: 13px; color: #64748b; text-decoration: none; transition: color 0.2s; }
+    .footer-link:hover { color: #81c784; }
+    .footer-cta-btn {
+      display: inline-block; padding: 10px 20px; border-radius: 9px;
+      background: linear-gradient(135deg, #2e7d32, #00796b);
+      color: white; font-size: 13px; font-weight: 700;
+      text-decoration: none; margin-bottom: 10px; transition: opacity 0.2s;
+    }
+    .footer-cta-btn:hover { opacity: 0.88; }
+    .footer-contact-item { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+    .footer-contact-item a { color: #64748b; text-decoration: none; transition: color 0.2s; }
+    .footer-contact-item a:hover { color: #81c784; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .footer-bottom-left { font-size: 12px; color: #374151; }
+    .footer-bottom-right { display: flex; gap: 20px; }
+    .footer-bottom-link { font-size: 12px; color: #374151; text-decoration: none; transition: color 0.2s; }
+    .footer-bottom-link:hover { color: #64748b; }
+
+    @media (max-width: 900px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .roi-grid { grid-template-columns: 1fr; gap: 0; }
+      .roi-card { padding: 20px; }
+      .qr-spotlight-grid { grid-template-columns: 1fr !important; }
+      .qr-phone-wrap { display: none; }
+    }
+    @media (max-width: 640px) {
+      .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+      .trust-divider { display: none; }
+    }
+
     /* DEMO MODAL */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 500;
@@ -549,7 +645,8 @@
       <a class="nav-link" href="#features">Features</a>
       <a class="nav-link" href="#how">How it works</a>
       <a class="nav-link" href="#pricing">Pricing</a>
-      <a class="nav-cta" href="school.html">School Login →</a>
+      <a class="nav-link" href="school.html">School Login</a>
+      <a class="nav-cta" href="#" onclick="openModal(); return false;">Book a Demo →</a>
     </div>
   </nav>
 
@@ -580,60 +677,68 @@
       <div class="hero-powered">Powered by <a href="https://smartflowhk.com" target="_blank">SmartFlowHK</a></div>
     </div>
     <div class="hero-tag">🏫 Built for Hong Kong Local &amp; International Schools</div>
-    <h1 class="hero-title">Run Your Open Day<br><span>Without the Chaos.</span></h1>
-    <p class="hero-sub-zh">開放日報名系統 — 簡單、雙語、自助管理</p>
-    <p class="hero-desc">A self-service registration platform designed for HK local and international schools. Create events, collect registrations, manage check-in — all in one place. Set up once, run every event yourself.</p>
+    <h1 class="hero-title">Stop Managing Open Day<br><span>in a Spreadsheet.</span></h1>
+    <p class="hero-sub-zh">開放日報名系統 — 雙語、自助管理、即時簽到</p>
+    <p class="hero-desc">A bilingual EN / 中文 registration platform built for HK schools. Parents book in 2 minutes. You get live attendance, QR check-in, and automatic confirmation emails — all without touching a spreadsheet.</p>
     <div class="hero-btns">
-      <a class="btn-primary" href="#" onclick="openModal(); return false;">Request a Demo →</a>
+      <a class="btn-primary" href="#" onclick="openModal(); return false;">Book a Free Demo →</a>
       <a class="btn-secondary" href="#how">See how it works</a>
     </div>
-    <p class="hero-note">No per-registration fees &nbsp;·&nbsp; Bilingual EN / 中文 &nbsp;·&nbsp; Your data stays in Google Sheets</p>
+    <p class="hero-note">No per-registration fees &nbsp;·&nbsp; Live in under 1 hour &nbsp;·&nbsp; Your data stays under your control</p>
   </div>
 
-  <!-- DEMO STRIP -->
-  <div class="demo-strip">
-    <p>Want to see a live demo? Contact us at <a href="mailto:openday852@gmail.com">openday@smartflowhk.com</a> — we'll walk you through everything.</p>
+  <!-- TRUST ROW -->
+  <div class="trust-row">
+    <div class="trust-item"><span>🔒</span> Your data is never stored on our servers</div>
+    <div class="trust-divider">·</div>
+    <div class="trust-item"><span>🇭🇰</span> HK-based setup &amp; support</div>
+    <div class="trust-divider">·</div>
+    <div class="trust-item"><span>🌐</span> Bilingual EN / 中文 built-in</div>
+    <div class="trust-divider">·</div>
+    <div class="trust-item"><span>⚡</span> Live in under 1 hour</div>
+    <div class="trust-divider">·</div>
+    <div class="trust-item"><span>💳</span> No per-registration fees — ever</div>
   </div>
 
-  <!-- SOCIAL PROOF -->
-  <div class="social-proof">
-    <div class="social-proof-label">Designed for schools across Hong Kong</div>
-    <div class="school-badges">
-      <div class="school-badge">
-        <div class="school-badge-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
-        </div>
-        International School
-      </div>
-      <div class="school-badge">
-        <div class="school-badge-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
-        </div>
-        Local Primary School
-      </div>
-      <div class="school-badge">
-        <div class="school-badge-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
-        </div>
-        Bilingual School
-      </div>
-      <div class="school-badge">
-        <div class="school-badge-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
-        </div>
-        DSS Secondary School
-      </div>
-      <div class="school-badge">
-        <div class="school-badge-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
-        </div>
-        English-Medium School
-      </div>
+  <!-- PAIN POINTS -->
+  <div style="background:#f1f5f9;padding:64px 5vw;border-bottom:1px solid #e2e8f0">
+    <div class="section-center">
+      <div class="section-label">Sound familiar?</div>
+      <h2 class="section-title" style="font-size:clamp(24px,3.5vw,38px);margin-bottom:10px">Every HK admissions team<br>has this problem.</h2>
+      <p class="section-desc" style="margin:0 auto 48px">Google Forms wasn't built for bilingual schools running 5–10 events a year. Neither was a shared spreadsheet.</p>
     </div>
-    <div class="social-stats">
-      <div class="social-stat"><strong>Set up in under an hour</strong> — no IT team needed</div>
-      <div class="social-stat"><strong>Zero ongoing fees</strong> per registration</div>
-      <div class="social-stat"><strong>Your data</strong>, your Google Sheet</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:1100px;margin:0 auto">
+      <div style="background:white;border-radius:16px;padding:24px;border:1.5px solid #fecaca">
+        <div style="font-size:28px;margin-bottom:12px">😤</div>
+        <div style="font-size:15px;font-weight:700;color:#1a2332;margin-bottom:8px">"I export the Google Form responses, copy them into Excel, then manually email each parent a confirmation."</div>
+        <div style="font-size:13px;color:#94a3b8">1–2 hours of admin per event, every time</div>
+      </div>
+      <div style="background:white;border-radius:16px;padding:24px;border:1.5px solid #fecaca">
+        <div style="font-size:28px;margin-bottom:12px">📋</div>
+        <div style="font-size:15px;font-weight:700;color:#1a2332;margin-bottom:8px">"On the day, we print out the list and cross off names with a pen. If someone's not on it, it's chaos."</div>
+        <div style="font-size:13px;color:#94a3b8">Paper check-in that breaks the moment it gets busy</div>
+      </div>
+      <div style="background:white;border-radius:16px;padding:24px;border:1.5px solid #fecaca">
+        <div style="font-size:28px;margin-bottom:12px">🔔</div>
+        <div style="font-size:15px;font-weight:700;color:#1a2332;margin-bottom:8px">"We have no way to send a reminder before the event. Every year we get no-shows from people who just forgot."</div>
+        <div style="font-size:13px;color:#94a3b8">No automated reminders means empty seats at every open day</div>
+      </div>
+      <div style="background:white;border-radius:16px;padding:24px;border:1.5px solid #fecaca">
+        <div style="font-size:28px;margin-bottom:12px">📱</div>
+        <div style="font-size:15px;font-weight:700;color:#1a2332;margin-bottom:8px">"Parents share the Google Form link in WhatsApp groups and we get duplicate registrations we have to clean up manually."</div>
+        <div style="font-size:13px;color:#94a3b8">No duplicate prevention, no capacity limits</div>
+      </div>
+      <div style="background:white;border-radius:16px;padding:24px;border:1.5px solid #fecaca">
+        <div style="font-size:28px;margin-bottom:12px">📊</div>
+        <div style="font-size:15px;font-weight:700;color:#1a2332;margin-bottom:8px">"After the event, I have to go back through the sheet to figure out who actually showed up vs who registered."</div>
+        <div style="font-size:13px;color:#94a3b8">No attendance tracking means you never know your real numbers</div>
+      </div>
+      <div style="background:white;border-radius:16px;padding:24px;border:1.5px solid #e2e8f0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+        <div style="font-size:28px;margin-bottom:12px">✅</div>
+        <div style="font-size:15px;font-weight:700;color:#1a2332;margin-bottom:8px">Open Day Platform fixes all of this.</div>
+        <div style="font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.6">One system. Bilingual. Automated confirmations. Live check-in. No spreadsheets.</div>
+        <a href="#" onclick="openModal(); return false;" class="btn-primary" style="font-size:13px;padding:10px 20px">Book a Free Demo →</a>
+      </div>
     </div>
   </div>
 
@@ -777,15 +882,15 @@
         <div class="feature-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
-        <div class="feature-title">School Login, Your Data</div>
-        <div class="feature-desc">Your school has its own secure login. All registrations live in a Google Sheet you own. No vendor lock-in, no shared databases.</div>
+        <div class="feature-title">Your Data, Your Control</div>
+        <div class="feature-desc">Your school has its own secure login. Your registration data is never stored on shared servers. Export everything anytime. No vendor lock-in.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
         </div>
         <div class="feature-title">Shareable Booking Links</div>
-        <div class="feature-desc">Each event gets a unique URL to post on your website, WeChat, or email blast. Parents register in under 2 minutes.</div>
+        <div class="feature-desc">Each event gets a unique URL to share on your website, newsletter, or any messaging app. Parents register in under 2 minutes.</div>
       </div>
     </div>
     <p class="also-includes-label">Also includes</p>
@@ -825,7 +930,7 @@
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-title">We onboard your school</div>
-        <div class="step-desc">We set up your school account, connect your Google Sheet, and walk your team through the portal. Takes about an hour.</div>
+        <div class="step-desc">We set up your school account and walk your admissions team through the portal. Full onboarding included. Takes about an hour.</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
@@ -835,7 +940,7 @@
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-title">Share the booking link</div>
-        <div class="step-desc">Post the link on your website, WeChat, or newsletter. Parents register in their language. Confirmations send automatically.</div>
+        <div class="step-desc">Share the link on your website, school newsletter, or any messaging app. Parents register in their language. Confirmations send automatically.</div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
@@ -844,6 +949,28 @@
       </div>
     </div>
   </section>
+
+  <!-- ROI STATS -->
+  <div class="roi-section">
+    <div class="section-center">
+      <div class="section-label" style="color:#81c784">By the numbers</div>
+      <h2 class="section-title" style="color:white;font-size:clamp(24px,3.5vw,36px)">The time you get back</h2>
+    </div>
+    <div class="roi-grid">
+      <div class="roi-card">
+        <div><span class="roi-num" style="font-size:clamp(32px,5vw,52px)">Hours</span></div>
+        <div class="roi-label">of admin saved per event — no manual data entry, email chasing, or spreadsheet merging</div>
+      </div>
+      <div class="roi-card" style="border-left:1px solid rgba(255,255,255,0.08);border-right:1px solid rgba(255,255,255,0.08)">
+        <div><span class="roi-num">&lt;2</span><span class="roi-unit">min</span></div>
+        <div class="roi-label">average parent registration time — on any mobile device, in English or Chinese</div>
+      </div>
+      <div class="roi-card">
+        <div><span class="roi-num">$0</span></div>
+        <div class="roi-label">per-registration fees — ever. Flat annual fee, unlimited events, unlimited registrations</div>
+      </div>
+    </div>
+  </div>
 
   <!-- WHO IT'S FOR -->
   <section>
@@ -883,6 +1010,95 @@
     </div>
   </section>
 
+  <!-- QR CHECK-IN SPOTLIGHT -->
+  <div style="background:linear-gradient(160deg,#0f1720 0%,#1e3a2f 60%,#0f1720 100%);padding:80px 5vw;overflow:hidden">
+    <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+      <!-- Text -->
+      <div>
+        <div class="section-label" style="color:#81c784">Event-day check-in</div>
+        <h2 class="section-title" style="color:white;margin-bottom:16px">No more paper lists.<br>Just scan and go.</h2>
+        <p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Every parent gets a QR code in their confirmation email the moment they register. On the day, your staff scan it from any phone or tablet — no printer, no spreadsheet, no searching.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px">
+          <div style="display:flex;align-items:flex-start;gap:14px">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(46,125,50,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📱</div>
+            <div>
+              <div style="font-size:15px;font-weight:700;color:white;margin-bottom:3px">Works on any device</div>
+              <div style="font-size:13px;color:#64748b">Any phone, tablet, or laptop with a camera. No app download, no special scanner needed.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(46,125,50,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚡</div>
+            <div>
+              <div style="font-size:15px;font-weight:700;color:white;margin-bottom:3px">Under 3 seconds per family</div>
+              <div style="font-size:13px;color:#64748b">Scan the QR code, see the name confirmed, move to the next family. No typing, no searching.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(46,125,50,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📊</div>
+            <div>
+              <div style="font-size:15px;font-weight:700;color:white;margin-bottom:3px">Live attendance count</div>
+              <div style="font-size:13px;color:#64748b">See exactly who's arrived in real time. Know your attendance rate the moment the event ends.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(46,125,50,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔍</div>
+            <div>
+              <div style="font-size:15px;font-weight:700;color:white;margin-bottom:3px">Manual search fallback</div>
+              <div style="font-size:13px;color:#64748b">Parent forgot their phone? Search by name and check them in manually. Always a backup.</div>
+            </div>
+          </div>
+        </div>
+        <a href="#" onclick="openModal(); return false;" class="btn-primary" style="font-size:15px">See it in action →</a>
+      </div>
+      <!-- QR Visual -->
+      <div style="display:flex;justify-content:center">
+        <div style="background:#1e293b;border-radius:28px;border:2px solid #334155;padding:20px;max-width:260px;width:100%">
+          <div style="background:white;border-radius:16px;overflow:hidden">
+            <!-- Confirmation email mockup -->
+            <div style="background:linear-gradient(135deg,#1b5e20,#00796b);padding:14px 16px">
+              <div style="font-size:13px;font-weight:800;color:white">Open Day Platform</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px">Your registration is confirmed</div>
+            </div>
+            <div style="padding:16px">
+              <div style="font-size:12px;color:#374151;margin-bottom:12px;line-height:1.5">Dear <strong>Chan Siu Ming</strong>,<br>Your Open Day registration is confirmed. Show the QR code below at the entrance.</div>
+              <!-- QR code SVG simulation -->
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center;margin-bottom:12px">
+                <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="90" height="90" fill="white"/>
+                  <!-- QR corner squares -->
+                  <rect x="5" y="5" width="25" height="25" rx="2" fill="#1a2332"/><rect x="9" y="9" width="17" height="17" rx="1" fill="white"/><rect x="12" y="12" width="11" height="11" rx="1" fill="#1a2332"/>
+                  <rect x="60" y="5" width="25" height="25" rx="2" fill="#1a2332"/><rect x="64" y="9" width="17" height="17" rx="1" fill="white"/><rect x="67" y="12" width="11" height="11" rx="1" fill="#1a2332"/>
+                  <rect x="5" y="60" width="25" height="25" rx="2" fill="#1a2332"/><rect x="9" y="64" width="17" height="17" rx="1" fill="white"/><rect x="12" y="67" width="11" height="11" rx="1" fill="#1a2332"/>
+                  <!-- QR data dots -->
+                  <rect x="35" y="5" width="4" height="4" fill="#1a2332"/><rect x="42" y="5" width="4" height="4" fill="#1a2332"/><rect x="49" y="5" width="4" height="4" fill="#1a2332"/>
+                  <rect x="35" y="12" width="4" height="4" fill="#1a2332"/><rect x="49" y="12" width="4" height="4" fill="#1a2332"/>
+                  <rect x="35" y="19" width="4" height="4" fill="#1a2332"/><rect x="42" y="19" width="4" height="4" fill="#1a2332"/>
+                  <rect x="5" y="35" width="4" height="4" fill="#1a2332"/><rect x="12" y="35" width="4" height="4" fill="#1a2332"/><rect x="19" y="35" width="4" height="4" fill="#1a2332"/>
+                  <rect x="35" y="35" width="4" height="4" fill="#1a2332"/><rect x="49" y="35" width="4" height="4" fill="#1a2332"/><rect x="56" y="35" width="4" height="4" fill="#1a2332"/><rect x="63" y="35" width="4" height="4" fill="#1a2332"/>
+                  <rect x="5" y="42" width="4" height="4" fill="#1a2332"/><rect x="19" y="42" width="4" height="4" fill="#1a2332"/><rect x="42" y="42" width="4" height="4" fill="#1a2332"/><rect x="63" y="42" width="4" height="4" fill="#1a2332"/>
+                  <rect x="5" y="49" width="4" height="4" fill="#1a2332"/><rect x="12" y="49" width="4" height="4" fill="#1a2332"/><rect x="35" y="49" width="4" height="4" fill="#1a2332"/><rect x="49" y="49" width="4" height="4" fill="#1a2332"/><rect x="56" y="49" width="4" height="4" fill="#1a2332"/>
+                  <rect x="35" y="60" width="4" height="4" fill="#1a2332"/><rect x="42" y="60" width="4" height="4" fill="#1a2332"/><rect x="56" y="60" width="4" height="4" fill="#1a2332"/><rect x="70" y="60" width="4" height="4" fill="#1a2332"/>
+                  <rect x="35" y="67" width="4" height="4" fill="#1a2332"/><rect x="49" y="67" width="4" height="4" fill="#1a2332"/><rect x="63" y="67" width="4" height="4" fill="#1a2332"/>
+                  <rect x="42" y="74" width="4" height="4" fill="#1a2332"/><rect x="56" y="74" width="4" height="4" fill="#1a2332"/><rect x="70" y="74" width="4" height="4" fill="#1a2332"/>
+                  <rect x="77" y="67" width="4" height="4" fill="#1a2332"/><rect x="77" y="74" width="4" height="4" fill="#1a2332"/>
+                  <rect x="70" y="42" width="4" height="4" fill="#1a2332"/><rect x="77" y="35" width="4" height="4" fill="#1a2332"/><rect x="77" y="49" width="4" height="4" fill="#1a2332"/>
+                </svg>
+                <div style="font-size:10px;color:#64748b;margin-top:6px;font-weight:600">Scan at entrance · OD-M9K4-A2F1</div>
+              </div>
+              <div style="background:#dcfce7;border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px">
+                <span style="font-size:16px">✅</span>
+                <div>
+                  <div style="font-size:11px;font-weight:800;color:#166534">CHECKED IN</div>
+                  <div style="font-size:10px;color:#166534">Chan Siu Ming · 10:04am</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- COMPARISON -->
   <section id="compare" class="how-bg">
     <div class="section-center">
@@ -904,10 +1120,10 @@
       </thead>
       <tbody>
         <tr>
-          <td>Bilingual EN / 中文</td>
+          <td>Bilingual EN / 中文 toggle</td>
           <td class="col-highlight"><span class="check">✓</span></td>
-          <td><span class="cross">✗</span></td>
           <td><span class="partial">Partial</span></td>
+          <td><span class="cross">✗</span></td>
         </tr>
         <tr>
           <td>Per-event custom forms</td>
@@ -934,16 +1150,16 @@
           <td><span class="check">✓</span></td>
         </tr>
         <tr>
-          <td>Data in your own Google Sheet</td>
+          <td>Your data, under your control</td>
           <td class="col-highlight"><span class="check">✓</span></td>
-          <td><span class="check">✓</span></td>
+          <td><span class="partial">Partial</span></td>
           <td><span class="cross">✗</span></td>
         </tr>
         <tr>
           <td>Per-registration fees</td>
           <td class="col-highlight"><span style="color:#2e7d32;font-weight:700">None</span></td>
           <td><span style="color:#2e7d32;font-weight:700">None</span></td>
-          <td><span style="color:#ef4444;font-weight:700">Yes</span></td>
+          <td><span class="partial">Paid events</span></td>
         </tr>
         <tr>
           <td>Multiple events in one system</td>
@@ -994,19 +1210,19 @@
       </details>
       <details class="faq-item">
         <summary class="faq-question">Is parent data stored securely?</summary>
-        <div class="faq-answer">Yes. All registrations are stored in your school's own private Google Sheet — not on a shared platform. You control who has access. Data never leaves your Google account.</div>
+        <div class="faq-answer">Yes. We don't store your registration data on shared servers. Your school's data is kept private and only accessible to your team. Confirmation emails are sent via a dedicated email service and parent details are not retained by us after sending.</div>
       </details>
       <details class="faq-item">
         <summary class="faq-question">Can we customize the registration questions?</summary>
         <div class="faq-answer">Yes. Each event has its own form builder. Add text fields, dropdowns, or checkboxes in both English and Chinese. Mark fields as required or optional. Every event can have a completely different form.</div>
       </details>
       <details class="faq-item">
-        <summary class="faq-question">Does it work with WeChat?</summary>
-        <div class="faq-answer">Yes. The booking link is a standard web URL that opens in any browser, including WeChat's built-in browser. You can share it directly in school WeChat groups. No special setup required.</div>
+        <summary class="faq-question">Can parents register from their phone?</summary>
+        <div class="faq-answer">Yes. The booking link is a standard web URL that opens in any browser on any device — iPhone, Android, tablet, desktop. No app download required. Parents can register in under 2 minutes from their phone.</div>
       </details>
       <details class="faq-item">
         <summary class="faq-question">What happens to the data after the event?</summary>
-        <div class="faq-answer">It stays in your Google Sheet permanently. You can export it as CSV at any time, archive it, or delete it — you're in full control. We don't retain any copies of your school's data.</div>
+        <div class="faq-answer">Your registration data belongs to you. Export it as a CSV at any time, archive it, or delete it — you're in full control. We don't retain copies of your school's data after the event.</div>
       </details>
     </div>
     <p class="faq-footer">Have more questions? <a href="mailto:openday852@gmail.com">Email us at openday@smartflowhk.com</a></p>
@@ -1014,23 +1230,61 @@
 
   <!-- CTA -->
   <div class="cta-section">
-    <h2 class="cta-title">Ready to run a better<br><span>open day?</span></h2>
-    <p class="cta-desc">Get in touch and we'll set up your school in one session. No long contracts, no technical knowledge required.</p>
+    <h2 class="cta-title">Your next open day<br><span>runs itself.</span></h2>
+    <p class="cta-desc">We set everything up in one session. Your team runs every event after that — no IT department, no developers, no spreadsheets.</p>
     <div class="cta-btns">
-      <a class="btn-primary" href="#" onclick="openModal(); return false;">Request a Demo →</a>
-      <a class="btn-secondary" href="school.html">School Login</a>
+      <a class="btn-primary" href="#" onclick="openModal(); return false;">Book a Free Demo →</a>
+      <a class="btn-secondary" href="https://wa.me/85246111510" target="_blank">💬 WhatsApp Us</a>
     </div>
-    <p class="cta-email">Email us: <a href="mailto:openday852@gmail.com">openday@smartflowhk.com</a></p>
-    <p class="cta-whatsapp">Prefer WhatsApp? <a href="https://wa.me/85246111510" target="_blank">Message us at +852 4611 1510</a></p>
+    <p class="cta-email" style="margin-top:20px;font-size:13px;color:#475569">Setup included &nbsp;·&nbsp; No contracts &nbsp;·&nbsp; HK-based support</p>
   </div>
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-brand">
-      <div class="footer-logo">OD</div>
-      <span class="footer-name">Open Day Platform &mdash; by SmartFlow HK</span>
+    <div class="footer-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div class="footer-logo">OD</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#94a3b8">Open Day Platform</div>
+            <div style="font-size:11px;color:#475569">by SmartFlow HK</div>
+          </div>
+        </div>
+        <p class="footer-brand-desc">A bilingual open day registration system built specifically for Hong Kong local and international schools.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <div class="footer-links">
+          <a class="footer-link" href="#features">Features</a>
+          <a class="footer-link" href="#how">How it works</a>
+          <a class="footer-link" href="#pricing">Pricing</a>
+          <a class="footer-link" href="#faq">FAQ</a>
+          <a class="footer-link" href="#compare">Compare</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Schools</div>
+        <div class="footer-links">
+          <a class="footer-link" href="school.html">School Login</a>
+          <a class="footer-link" href="form-builder-demo.html" target="_blank">Form Builder Demo</a>
+          <a class="footer-link" href="#" onclick="openModal(); return false;">Book a Demo</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Get in touch</div>
+        <a href="#" onclick="openModal(); return false;" class="footer-cta-btn">Book a Free Demo →</a>
+        <div class="footer-contact-item">💬 <a href="https://wa.me/85246111510" target="_blank">WhatsApp +852 4611 1510</a></div>
+        <div class="footer-contact-item">✉️ <a href="mailto:openday852@gmail.com">openday@smartflowhk.com</a></div>
+      </div>
     </div>
-    <div class="footer-right">© <span id="year"></span> SmartFlow HK. All rights reserved.</div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-left">© <span id="year"></span> SmartFlow HK. All rights reserved.</div>
+      <div class="footer-bottom-right">
+        <a class="footer-bottom-link" href="#">Privacy Policy</a>
+        <a class="footer-bottom-link" href="#">Terms of Use</a>
+        <a class="footer-bottom-link" href="school.html">School Login</a>
+      </div>
+    </div>
   </footer>
 
   <!-- DEMO REQUEST MODAL -->
@@ -1079,8 +1333,8 @@
 
   <!-- STICKY CTA BAR (mobile) -->
   <div class="sticky-bar" id="sticky-bar">
-    <a class="btn-primary" href="#" onclick="openModal(); return false;">Request a Demo →</a>
-    <a class="sticky-bar-secondary" href="school.html">School Login</a>
+    <a class="btn-primary" href="#" onclick="openModal(); return false;">Book a Free Demo →</a>
+    <a class="sticky-bar-secondary" href="https://wa.me/85246111510" target="_blank">WhatsApp Us</a>
     <button class="sticky-close" onclick="document.getElementById('sticky-bar').classList.remove('show'); document.getElementById('sticky-bar').dataset.dismissed='1'">✕</button>
   </div>
 
