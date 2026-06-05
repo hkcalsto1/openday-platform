@@ -449,6 +449,74 @@
       .compare-table th, .compare-table td { padding: 10px 12px; }
       .sticky-bar-secondary { display: none; }
     }
+
+    /* DEMO MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(10,15,22,0.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: white; border-radius: 20px;
+      width: 100%; max-width: 480px;
+      padding: 36px; position: relative;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+      transform: translateY(16px); transition: transform 0.2s;
+    }
+    .modal-backdrop.open .modal { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; cursor: pointer;
+      color: #94a3b8; font-size: 20px; line-height: 1; padding: 4px;
+    }
+    .modal-close:hover { color: #1a2332; }
+    .modal-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: #2e7d32; margin-bottom: 8px;
+    }
+    .modal-title { font-size: 22px; font-weight: 900; color: #1a2332; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .modal-sub { font-size: 14px; color: #64748b; margin-bottom: 24px; line-height: 1.5; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .form-group label { font-size: 12px; font-weight: 700; color: #374151; }
+    .form-group input, .form-group textarea, .form-group select {
+      padding: 10px 13px; border: 1.5px solid #e2e8f0; border-radius: 9px;
+      font-size: 14px; color: #1a2332; font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s; background: white; width: 100%;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none; border-color: #2e7d32;
+      box-shadow: 0 0 0 3px rgba(46,125,50,0.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-submit {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #2e7d32, #00796b);
+      color: white; font-size: 15px; font-weight: 700;
+      border: none; border-radius: 11px; cursor: pointer;
+      transition: all 0.2s; margin-top: 6px;
+    }
+    .form-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+    .form-submit:disabled { opacity: 0.6; cursor: default; transform: none; }
+    .modal-success {
+      text-align: center; padding: 20px 0; display: none;
+    }
+    .modal-success-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, #e8f5e9, #e0f2f1);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 26px;
+    }
+    .modal-success h3 { font-size: 20px; font-weight: 800; color: #1a2332; margin-bottom: 8px; }
+    .modal-success p { font-size: 14px; color: #64748b; line-height: 1.6; }
+    .modal-error { font-size: 13px; color: #ef4444; margin-top: 8px; text-align: center; display: none; }
+    @media (max-width: 480px) {
+      .modal { padding: 28px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -516,7 +584,7 @@
     <p class="hero-sub-zh">開放日報名系統 — 簡單、雙語、自助管理</p>
     <p class="hero-desc">A self-service registration platform designed for HK local and international schools. Create events, collect registrations, manage check-in — all in one place. Set up once, run every event yourself.</p>
     <div class="hero-btns">
-      <a class="btn-primary" href="mailto:openday@smartflowhk.com">Request a Demo →</a>
+      <a class="btn-primary" href="#" onclick="openModal(); return false;">Request a Demo →</a>
       <a class="btn-secondary" href="#how">See how it works</a>
     </div>
     <p class="hero-note">No per-registration fees &nbsp;·&nbsp; Bilingual EN / 中文 &nbsp;·&nbsp; Your data stays in Google Sheets</p>
@@ -524,7 +592,7 @@
 
   <!-- DEMO STRIP -->
   <div class="demo-strip">
-    <p>Want to see a live demo? Contact us at <a href="mailto:openday@smartflowhk.com">openday@smartflowhk.com</a> — we'll walk you through everything.</p>
+    <p>Want to see a live demo? Contact us at <a href="mailto:openday852@gmail.com">openday@smartflowhk.com</a> — we'll walk you through everything.</p>
   </div>
 
   <!-- SOCIAL PROOF -->
@@ -906,8 +974,8 @@
       <div class="pricing-amount">From HK$4,000<span>/year</span></div>
       <p class="pricing-desc">Flat annual fee — no per-registration charges, no hidden costs. Covers unlimited events, all features, and a full onboarding session for your team.</p>
       <div class="pricing-btns">
-        <a class="btn-primary" href="mailto:openday@smartflowhk.com?subject=Demo%20Request">Request a Demo →</a>
-        <a class="btn-outline" href="mailto:openday@smartflowhk.com?subject=Sample%20Booking%20Form">See Sample Form</a>
+        <a class="btn-primary" href="#" onclick="openModal(); return false;">Request a Demo →</a>
+        <a class="btn-outline" href="mailto:openday852@gmail.com?subject=Sample%20Booking%20Form">See Sample Form</a>
       </div>
       <p class="pricing-note">No contracts. Cancel anytime. Setup included.</p>
     </div>
@@ -941,7 +1009,7 @@
         <div class="faq-answer">It stays in your Google Sheet permanently. You can export it as CSV at any time, archive it, or delete it — you're in full control. We don't retain any copies of your school's data.</div>
       </details>
     </div>
-    <p class="faq-footer">Have more questions? <a href="mailto:openday@smartflowhk.com">Email us at openday@smartflowhk.com</a></p>
+    <p class="faq-footer">Have more questions? <a href="mailto:openday852@gmail.com">Email us at openday@smartflowhk.com</a></p>
   </section>
 
   <!-- CTA -->
@@ -949,10 +1017,10 @@
     <h2 class="cta-title">Ready to run a better<br><span>open day?</span></h2>
     <p class="cta-desc">Get in touch and we'll set up your school in one session. No long contracts, no technical knowledge required.</p>
     <div class="cta-btns">
-      <a class="btn-primary" href="mailto:openday@smartflowhk.com">Request a Demo →</a>
+      <a class="btn-primary" href="#" onclick="openModal(); return false;">Request a Demo →</a>
       <a class="btn-secondary" href="school.html">School Login</a>
     </div>
-    <p class="cta-email">Email us: <a href="mailto:openday@smartflowhk.com">openday@smartflowhk.com</a></p>
+    <p class="cta-email">Email us: <a href="mailto:openday852@gmail.com">openday@smartflowhk.com</a></p>
     <p class="cta-whatsapp">Prefer WhatsApp? <a href="https://wa.me/85246111510" target="_blank">Message us at +852 4611 1510</a></p>
   </div>
 
@@ -965,9 +1033,53 @@
     <div class="footer-right">© <span id="year"></span> SmartFlow HK. All rights reserved.</div>
   </footer>
 
+  <!-- DEMO REQUEST MODAL -->
+  <div class="modal-backdrop" id="demo-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+      <div id="modal-form-wrap">
+        <div class="modal-label">Request a Demo</div>
+        <h2 class="modal-title" id="modal-title">See it live in 20 minutes</h2>
+        <p class="modal-sub">Fill in your details and we'll reach out to schedule a walkthrough at a time that suits you.</p>
+        <!-- Replace YOUR_FORM_ID with your Formspree form ID from formspree.io -->
+        <form id="demo-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-name">Your Name *</label>
+              <input type="text" id="f-name" name="name" placeholder="Jane Chan" required>
+            </div>
+            <div class="form-group">
+              <label for="f-school">School Name *</label>
+              <input type="text" id="f-school" name="school" placeholder="e.g. Beacon Hill School" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="f-email">Email Address *</label>
+            <input type="email" id="f-email" name="email" placeholder="you@school.edu.hk" required>
+          </div>
+          <div class="form-group">
+            <label for="f-phone">Phone / WhatsApp</label>
+            <input type="tel" id="f-phone" name="phone" placeholder="+852 xxxx xxxx">
+          </div>
+          <div class="form-group">
+            <label for="f-message">Anything you'd like us to know?</label>
+            <textarea id="f-message" name="message" placeholder="e.g. We run 3 open days a year, bilingual school..."></textarea>
+          </div>
+          <button type="submit" class="form-submit" id="form-submit-btn">Request Demo →</button>
+          <p class="modal-error" id="modal-error">Something went wrong. Please email us at openday852@gmail.com</p>
+        </form>
+      </div>
+      <div class="modal-success" id="modal-success">
+        <div class="modal-success-icon">✓</div>
+        <h3>Request sent!</h3>
+        <p>Thanks — we'll be in touch within one business day to schedule your demo.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- STICKY CTA BAR (mobile) -->
   <div class="sticky-bar" id="sticky-bar">
-    <a class="btn-primary" href="mailto:openday@smartflowhk.com">Request a Demo →</a>
+    <a class="btn-primary" href="#" onclick="openModal(); return false;">Request a Demo →</a>
     <a class="sticky-bar-secondary" href="school.html">School Login</a>
     <button class="sticky-close" onclick="document.getElementById('sticky-bar').classList.remove('show'); document.getElementById('sticky-bar').dataset.dismissed='1'">✕</button>
   </div>
@@ -982,6 +1094,52 @@
       else if (e.isIntersecting) bar.classList.remove('show');
     }, { threshold: 0 });
     observer.observe(hero);
+
+    // Modal
+    const modal = document.getElementById('demo-modal');
+    function openModal() {
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    document.getElementById('demo-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('form-submit-btn');
+      const errEl = document.getElementById('modal-error');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      errEl.style.display = 'none';
+      try {
+        const payload = {
+          name:    document.getElementById('f-name').value.trim(),
+          school:  document.getElementById('f-school').value.trim(),
+          email:   document.getElementById('f-email').value.trim(),
+          phone:   document.getElementById('f-phone').value.trim(),
+          message: document.getElementById('f-message').value.trim(),
+        };
+        const res = await fetch('https://n8n.okahh.com/webhook/openday-demo-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          document.getElementById('modal-form-wrap').style.display = 'none';
+          document.getElementById('modal-success').style.display = 'block';
+        } else {
+          throw new Error();
+        }
+      } catch {
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Request Demo →';
+      }
+    });
   </script>
 
 </body>
