@@ -217,8 +217,11 @@
     <div class="topbar-sub">Form Builder</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
+    <input id="school-name-input" type="text" value="Greenfield International School"
+      style="border:1.5px solid #e2e8f0;border-radius:8px;padding:6px 12px;font-size:13px;font-family:'Inter',sans-serif;color:#1a2332;width:260px;outline:none"
+      placeholder="School name for demo"
+      oninput="document.getElementById('preview-school-name').textContent=this.value||'Your School'">
     <span class="demo-badge">✨ Demo Mode</span>
-    <div style="font-size:12px;color:#94a3b8">Changes are preview only</div>
   </div>
 </div>
 
@@ -279,7 +282,7 @@
       <div class="preview-notch"></div>
       <div class="preview-screen">
         <div class="preview-header">
-          <div class="preview-school">Greenfield International School</div>
+          <div class="preview-school" id="preview-school-name">Greenfield International School</div>
           <div class="preview-event">📅 Open Day 2026 · 10:00–12:00</div>
         </div>
         <div class="preview-form">
