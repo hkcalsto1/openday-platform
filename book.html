@@ -161,9 +161,62 @@
     .expect-em { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
     .seeya { text-align: center; font-size: 22px; margin-top: 20px; font-weight: 600; }
 
+    /* ── Step Wizard ── */
+    .step-bar {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 20px; padding: 20px 0 4px;
+    }
+    .step-item { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid #e2e8f0; background: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #94a3b8;
+      transition: all 0.3s;
+    }
+    .step-item.active .step-dot { background: #2e7d32; border-color: #2e7d32; color: white; }
+    .step-item.done .step-dot { background: #e8f5e9; border-color: #2e7d32; color: #2e7d32; font-size: 15px; }
+    .step-label { font-size: 10px; font-weight: 600; color: #94a3b8; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .step-item.active .step-label { color: #2e7d32; }
+    .step-item.done .step-label { color: #2e7d32; }
+    .step-connector { width: 56px; height: 2px; background: #e2e8f0; margin: 0 4px; margin-bottom: 22px; transition: background 0.3s; flex-shrink: 0; }
+    .step-connector.done { background: #2e7d32; }
+
+    /* ── Step panels ── */
+    .step-panel { display: none; animation: fadeIn 0.25s ease; }
+    .step-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── Step nav ── */
+    .step-nav {
+      display: flex; gap: 10px; margin-top: 4px;
+    }
+    .btn-next {
+      flex: 1; padding: 15px; border: none; border-radius: 14px;
+      background: linear-gradient(135deg, #2e7d32, #388e3c);
+      color: white; font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s; font-family: 'Inter', sans-serif;
+    }
+    .btn-next:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46,125,50,0.35); }
+    .btn-next:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-back {
+      padding: 15px 20px; border: 2px solid #e2e8f0; border-radius: 14px;
+      background: white; color: #374151; font-size: 16px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .btn-back:hover { border-color: #2e7d32; color: #2e7d32; }
+
+    @media (max-width: 640px) {
+      .programme-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 400px) {
       .field-row { grid-template-columns: 1fr; }
       .programme-grid { grid-template-columns: 1fr; }
+      .step-connector { width: 20px; }
+      .step-label { font-size: 8px; letter-spacing: 0; }
+    }
+    @media (max-width: 320px) {
+      .step-label { display: none; }
     }
   </style>
 </head>
@@ -215,109 +268,146 @@
     <p id="event-desc-text" style="font-size:15px;line-height:1.7;color:#374151"></p>
   </div>
 
-  <!-- Error Banner -->
-  <div class="error-banner" id="error-banner">
-    <p id="error-msg">Submission failed. Please check your connection and try again.</p>
-    <button class="retry-btn" id="retry-btn" onclick="retrySubmit()">Retry</button>
+
+
+  <!-- Step Progress Bar -->
+  <div class="step-bar" id="step-bar">
+    <div class="step-item active" id="step-dot-1">
+      <div class="step-dot">1</div>
+      <div class="step-label" id="step-lbl-1">Your Details</div>
+    </div>
+    <div class="step-connector" id="step-conn-1"></div>
+    <div class="step-item" id="step-dot-2">
+      <div class="step-dot">2</div>
+      <div class="step-label" id="step-lbl-2">Your Child</div>
+    </div>
+    <div class="step-connector" id="step-conn-2"></div>
+    <div class="step-item" id="step-dot-3">
+      <div class="step-dot">3</div>
+      <div class="step-label" id="step-lbl-3">Final Details</div>
+    </div>
   </div>
 
   <!-- Registration Form -->
   <form id="reg-form" novalidate>
 
-    <!-- Parent Details -->
-    <div class="card">
-      <div class="section-title" id="sec-parent">Your Details</div>
-      <div class="field-row">
-        <div class="field">
-          <label for="firstName"><span id="lbl-fn">First Name</span> <span class="required">*</span></label>
-          <input type="text" id="firstName" autocomplete="given-name" placeholder="Mei">
-          <div class="field-error" id="err-firstName"></div>
-        </div>
-        <div class="field">
-          <label for="lastName"><span id="lbl-ln">Last Name</span> <span class="required">*</span></label>
-          <input type="text" id="lastName" autocomplete="family-name" placeholder="Chan">
-          <div class="field-error" id="err-lastName"></div>
-        </div>
-      </div>
-      <div class="field">
-        <label for="email"><span id="lbl-em">Email Address</span> <span class="required">*</span></label>
-        <input type="email" id="email" autocomplete="email" placeholder="your@email.com">
-        <div class="field-error" id="err-email"></div>
-      </div>
-      <div class="field">
-        <label for="phone"><span id="lbl-ph">WhatsApp / Phone</span> <span class="required">*</span></label>
-        <input type="tel" id="phone" autocomplete="tel" placeholder="+852 9xxx xxxx">
-        <div class="field-error" id="err-phone"></div>
-      </div>
-    </div>
-
-    <!-- Child Details -->
-    <div class="card">
-      <div class="section-title" id="sec-child">About Your Child</div>
-      <div class="field">
-        <label for="childName"><span id="lbl-cn">Child's Name</span> <span class="required">*</span></label>
-        <input type="text" id="childName" placeholder="Tom Chan">
-        <div class="field-error" id="err-childName"></div>
-      </div>
-      <div class="field">
-        <label for="childAge"><span id="lbl-ca">Child's Age</span> <span class="required">*</span></label>
-        <select id="childAge">
-          <option value="" id="age-ph">Select age range</option>
-          <option value="2–3">2–3 years old</option>
-          <option value="4–5">4–5 years old</option>
-          <option value="6–8">6–8 years old</option>
-          <option value="9–11">9–11 years old</option>
-          <option value="12–14">12–14 years old</option>
-          <option value="15–18">15–18 years old</option>
-        </select>
-        <div class="field-error" id="err-childAge"></div>
-      </div>
-      <div class="field">
-        <label id="lbl-prog">Programme of Interest <span class="required">*</span></label>
-        <div class="programme-grid" id="prog-grid"><!-- filled by JS --></div>
-        <div class="field-error" id="err-programme"></div>
-      </div>
-    </div>
-
-    <!-- Final Section -->
-    <div class="card">
-      <div class="section-title" id="sec-final">One More Thing</div>
-      <div class="field">
-        <label for="howDidYouHear"><span id="lbl-hear">How did you hear about us?</span></label>
-        <select id="howDidYouHear">
-          <option value="School website" id="h-web">School website</option>
-          <option value="Social media" id="h-social">Social media</option>
-          <option value="Friend or family" id="h-friend">Friend or family</option>
-          <option value="School fair" id="h-fair">School fair / expo</option>
-          <option value="Google search" id="h-google">Google search</option>
-          <option value="Email or newsletter" id="h-email">Email or newsletter</option>
-          <option value="Other" id="h-other">Other</option>
-        </select>
-      </div>
-      <div class="field">
-        <label id="lbl-lp">Preferred Language for Emails</label>
-        <div class="langpref-grid">
-          <div class="langpref-card selected" id="lp-en" onclick="selectLangPref('English')">
-            <div class="langpref-name">English</div>
-            <div class="langpref-sub" id="lp-en-sub">Confirmation in English</div>
+    <!-- STEP 1: Parent Details -->
+    <div class="step-panel active" id="step-panel-1">
+      <div class="card">
+        <div class="section-title" id="sec-parent">Your Details</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="firstName"><span id="lbl-fn">First Name</span> <span class="required">*</span></label>
+            <input type="text" id="firstName" autocomplete="given-name" placeholder="Mei" maxlength="60">
+            <div class="field-error" id="err-firstName"></div>
           </div>
-          <div class="langpref-card" id="lp-zh" onclick="selectLangPref('Chinese')">
-            <div class="langpref-name">中文</div>
-            <div class="langpref-sub" id="lp-zh-sub">以繁體中文確認</div>
+          <div class="field">
+            <label for="lastName"><span id="lbl-ln">Last Name</span> <span class="required">*</span></label>
+            <input type="text" id="lastName" autocomplete="family-name" placeholder="Chan" maxlength="60">
+            <div class="field-error" id="err-lastName"></div>
           </div>
         </div>
+        <div class="field">
+          <label for="email"><span id="lbl-em">Email Address</span> <span class="required">*</span></label>
+          <input type="email" id="email" autocomplete="email" placeholder="your@email.com" maxlength="254">
+          <div class="field-error" id="err-email"></div>
+        </div>
+        <div class="field">
+          <label for="phone"><span id="lbl-ph">WhatsApp / Phone</span> <span class="required">*</span></label>
+          <input type="tel" id="phone" autocomplete="tel" placeholder="+852 9xxx xxxx" maxlength="20">
+          <div class="field-error" id="err-phone"></div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button type="button" class="btn-next" onclick="goStep(2)"><span id="next-1-text">Next → About Your Child</span></button>
       </div>
     </div>
 
-    <!-- Custom Questions (injected by JS) -->
-    <div id="custom-fields-section"></div>
+    <!-- STEP 2: Child Details -->
+    <div class="step-panel" id="step-panel-2">
+      <div class="card">
+        <div class="section-title" id="sec-child">About Your Child</div>
+        <div class="field">
+          <label for="childName"><span id="lbl-cn">Child's Name</span> <span class="required">*</span></label>
+          <input type="text" id="childName" placeholder="Tom Chan" maxlength="80">
+          <div class="field-error" id="err-childName"></div>
+        </div>
+        <div class="field">
+          <label for="childAge"><span id="lbl-ca">Child's Age</span> <span class="required">*</span></label>
+          <select id="childAge">
+            <option value="" id="age-ph">Select age range</option>
+            <option value="2–3">2–3 years old</option>
+            <option value="4–5">4–5 years old</option>
+            <option value="6–8">6–8 years old</option>
+            <option value="9–11">9–11 years old</option>
+            <option value="12–14">12–14 years old</option>
+            <option value="15–18">15–18 years old</option>
+          </select>
+          <div class="field-error" id="err-childAge"></div>
+        </div>
+        <div class="field">
+          <label id="lbl-prog">Programme of Interest <span class="required">*</span></label>
+          <div class="programme-grid" id="prog-grid"><!-- filled by JS --></div>
+          <div class="field-error" id="err-programme"></div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button type="button" class="btn-back" onclick="goStep(1)">←</button>
+        <button type="button" class="btn-next" onclick="goStep(3)"><span id="next-2-text">Next → Final Details</span></button>
+      </div>
+    </div>
 
-    <button type="submit" class="submit-btn" id="submit-btn">
-      <span id="submit-text">Register Now →</span>
-    </button>
-    <p class="submit-note" id="submit-note">
-      By registering you agree to receive event-related communications. We respect your privacy.
-    </p>
+    <!-- STEP 3: Preferences + Custom + Submit -->
+    <div class="step-panel" id="step-panel-3">
+      <div class="card">
+        <div class="section-title" id="sec-final">One More Thing</div>
+        <div class="field">
+          <label for="howDidYouHear"><span id="lbl-hear">How did you hear about us?</span></label>
+          <select id="howDidYouHear">
+            <option value="" id="h-ph">— Select / 請選擇 —</option>
+            <option value="School website" id="h-web">School website</option>
+            <option value="Social media" id="h-social">Social media</option>
+            <option value="Friend or family" id="h-friend">Friend or family</option>
+            <option value="School fair" id="h-fair">School fair / expo</option>
+            <option value="Google search" id="h-google">Google search</option>
+            <option value="Email or newsletter" id="h-email">Email or newsletter</option>
+            <option value="Other" id="h-other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label id="lbl-lp">Preferred Language for Emails</label>
+          <div class="langpref-grid">
+            <div class="langpref-card selected" id="lp-en" onclick="selectLangPref('English')">
+              <div class="langpref-name">English</div>
+              <div class="langpref-sub" id="lp-en-sub">Confirmation in English</div>
+            </div>
+            <div class="langpref-card" id="lp-zh" onclick="selectLangPref('Chinese')">
+              <div class="langpref-name">中文</div>
+              <div class="langpref-sub" id="lp-zh-sub">以繁體中文確認</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Questions (injected by JS) -->
+      <div id="custom-fields-section"></div>
+
+      <!-- Error Banner (moved to step 3) -->
+      <div class="error-banner" id="error-banner">
+        <p id="error-msg">Submission failed. Please check your connection and try again.</p>
+        <button class="retry-btn" id="retry-btn" onclick="retrySubmit()">Retry</button>
+      </div>
+
+      <div class="step-nav">
+        <button type="button" class="btn-back" onclick="goStep(2)">←</button>
+        <button type="submit" class="btn-next" id="submit-btn">
+          <span id="submit-text">Register Now →</span>
+        </button>
+      </div>
+      <p class="submit-note" id="submit-note" style="text-align:center;margin-top:10px">
+        By registering you agree to receive event-related communications. We respect your privacy.
+      </p>
+    </div>
 
   </form>
 
@@ -342,6 +432,7 @@
         <div class="expect-item"><span class="expect-em">☕</span><span id="suc-e4">Light refreshments provided</span></div>
       </div>
       <div class="seeya" id="suc-seeya">See you at Open Day! 🎉</div>
+      <p style="margin-top:20px;font-size:13px;color:#94a3b8">Didn't receive the email? <button id="resend-btn" onclick="resendConfirmation()" style="background:none;border:none;color:#2e7d32;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;text-decoration:underline">Resend confirmation</button></p>
     </div>
   </div>
 
@@ -364,6 +455,8 @@ let eventConfig = null;
 async function loadEventConfig() {
   const params = new URLSearchParams(window.location.search);
   const eventId = params.get('event');
+  selectedProg = null;
+  customFields = [];
   if (!eventId) {
     showConfigError('No event ID in URL. Please use the link provided by your school.');
     return;
@@ -377,25 +470,7 @@ async function loadEventConfig() {
     eventConfig = data;
     applyEventConfig(data);
   } catch {
-    // Fallback: use demo config so the form is still usable offline/for testing
-    eventConfig = {
-      event_id: eventId || 'demo',
-      school_name: 'Greenfield International School',
-      school_name_zh: '綠地國際學校',
-      event_name: 'Open Day',
-      event_date: 'Saturday, 18 April 2026',
-      event_date_zh: '2026年4月18日（星期六）',
-      event_time: '10:00 AM – 12:00 PM',
-      event_time_zh: '上午10時至中午12時',
-      venue: '123 Discovery Bay Road, Lantau Island',
-      venue_zh: '香港大嶼山愉景灣道123號',
-      event_date_iso: '2026-04-18',
-      event_start_ts: '20260418T100000',
-      event_end_ts: '20260418T120000',
-      programmes: 'Early Years,Primary,Secondary',
-      status: 'active',
-    };
-    applyEventConfig(eventConfig);
+    showConfigError('Unable to load event details. Please check your connection and try again.');
   }
 }
 
@@ -414,12 +489,16 @@ function applyEventConfig(data) {
   document.title = `${data.school_name} — Open Day Registration`;
   document.getElementById('reg-form-wrap').style.display = 'block';
   document.getElementById('loading-state').style.display = 'none';
+  currentStep = 1;
+  goStep(1);
+  startCapacityPolling();
   // Show event description if set
   const descEl = document.getElementById('event-description-card');
   if (descEl) {
-    if (data.event_description) {
+    const desc = (lang === 'zh' && data.event_description_zh) ? data.event_description_zh : data.event_description;
+    if (desc) {
       descEl.style.display = 'block';
-      document.getElementById('event-desc-text').textContent = data.event_description;
+      document.getElementById('event-desc-text').textContent = desc;
     } else {
       descEl.style.display = 'none';
     }
@@ -437,11 +516,71 @@ function showConfigError(msg) {
 }
 // ================================================================
 
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
 let lang = 'en';
 let selectedProg = null;
 let selectedLangPref = 'English';
 let lastPayload = null;
 let customFields = [];
+let currentStep = 1;
+
+function goStep(step) {
+  // Validate before advancing
+  if (step > currentStep) {
+    if (currentStep === 1 && !validateStep1()) return;
+    if (currentStep === 2 && !validateStep2()) return;
+  }
+  // Update panels
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`step-panel-${i}`).className = 'step-panel' + (i === step ? ' active' : '');
+  }
+  // Update step dots
+  for (let i = 1; i <= 3; i++) {
+    const dotEl = document.getElementById(`step-dot-${i}`);
+    if (i < step) dotEl.className = 'step-item done';
+    else if (i === step) dotEl.className = 'step-item active';
+    else dotEl.className = 'step-item';
+    // Update dot inner text for done state
+    dotEl.querySelector('.step-dot').textContent = i < step ? '✓' : String(i);
+  }
+  // Update connectors
+  for (let i = 1; i <= 2; i++) {
+    document.getElementById(`step-conn-${i}`).className = 'step-connector' + (i < step ? ' done' : '');
+  }
+  currentStep = step;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateStep1() {
+  const t = T[lang]; let ok = true;
+  ['firstName','lastName'].forEach(id => {
+    const v = document.getElementById(id).value.trim();
+    if (!v) { setErr(id, t.errReq); ok = false; } else setErr(id, '');
+  });
+  const phone = document.getElementById('phone').value.trim();
+  if (!phone) { setErr('phone', t.errReq); ok = false; }
+  else if (!/^(\+?852[\s-]?)?[2-9]\d{3}[\s-]?\d{4}$/.test(phone.replace(/\s/g,''))) {
+    setErr('phone', lang === 'zh' ? '請輸入有效的香港電話號碼' : 'Please enter a valid HK phone number'); ok = false;
+  } else setErr('phone', '');
+  const email = document.getElementById('email').value.trim();
+  if (!email) { setErr('email', t.errReq); ok = false; }
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('email', t.errEmail); ok = false; }
+  else setErr('email', '');
+  return ok;
+}
+
+function validateStep2() {
+  const t = T[lang]; let ok = true;
+  const childName = document.getElementById('childName').value.trim();
+  if (!childName) { setErr('childName', t.errReq); ok = false; } else setErr('childName', '');
+  if (!document.getElementById('childAge').value) { setErr('childAge', t.errReq); ok = false; } else setErr('childAge', '');
+  if (!selectedProg) {
+    setErr('programme', t.errProg); ok = false;
+    document.querySelectorAll('.prog-card').forEach(c => c.classList.add('is-error'));
+  }
+  return ok;
+}
 
 const T = {
   en: {
@@ -461,7 +600,7 @@ const T = {
     ages: ['Select age range','2–3 years old','4–5 years old','6–8 years old','9–11 years old','12–14 years old','15–18 years old'],
     errReq: 'This field is required', errEmail: 'Please enter a valid email address',
     errProg: 'Please select a programme', errNet: 'Submission failed. Please check your connection and try again.',
-    errFull: 'Sorry, this event is now full.',
+    errFull: 'Sorry, this event is now full. Registrations are closed.',
     errDup: 'You are already registered for this event.',
     retry: 'Retry',
     sucTitle: 'Registration Confirmed!',
@@ -487,7 +626,7 @@ const T = {
     hWeb: '學校網站', hSocial: '社交媒體', hFriend: '親友介紹',
     hFair: '教育展覽', hGoogle: 'Google搜尋', hEmail: '電郵或通訊', hOther: '其他',
     lp: '希望以哪種語言收取確認電郵',
-    lpEnSub: 'Confirmation in English', lpZhSub: '以繁體中文確認',
+    lpEnSub: '以英文確認', lpZhSub: '以繁體中文確認',
     submit: '立即報名 →',
     note: '報名即同意接收活動相關資訊。我們重視您的私隱。',
     ages: ['請選擇年齡範圍','2至3歲','4至5歲','6至8歲','9至11歲','12至14歲','15至18歲'],
@@ -530,6 +669,14 @@ function setLang(l) {
   document.getElementById('sec-parent').textContent = t.secParent;
   document.getElementById('sec-child').textContent  = t.secChild;
   document.getElementById('sec-final').textContent  = t.secFinal;
+  // Step bar labels
+  if (document.getElementById('step-lbl-1')) {
+    document.getElementById('step-lbl-1').textContent = isZh ? '您的資料' : 'Your Details';
+    document.getElementById('step-lbl-2').textContent = isZh ? '孩子資料' : 'Your Child';
+    document.getElementById('step-lbl-3').textContent = isZh ? '最後一步' : 'Final Details';
+    document.getElementById('next-1-text').textContent = isZh ? '下一步 → 孩子資料' : 'Next → About Your Child';
+    document.getElementById('next-2-text').textContent = isZh ? '下一步 → 最後一步' : 'Next → Final Details';
+  }
   document.getElementById('lbl-fn').textContent = t.fn;
   document.getElementById('lbl-ln').textContent = t.ln;
   document.getElementById('lbl-em').textContent = t.em;
@@ -577,18 +724,18 @@ function renderCustomFields() {
   section.innerHTML = `<div class="card">
     <div class="section-title">${isZh ? '其他資料' : 'Additional Information'}</div>
     ${customFields.map(f => {
-      const label = isZh && f.label_zh ? f.label_zh : f.label_en;
+      const label = esc(isZh && f.label_zh ? f.label_zh : f.label_en);
       const req = f.required ? '<span class="required"> *</span>' : '';
       if (f.type === 'dropdown') {
         const opts = isZh && f.options_zh && f.options_zh.length ? f.options_zh : (f.options_en || []);
         const enOpts = f.options_en || [];
         return `<div class="field">
-          <label for="cf_${f.id}">${label}${req}</label>
-          <select id="cf_${f.id}" data-fid="${f.id}">
+          <label for="cf_${esc(f.id)}">${label}${req}</label>
+          <select id="cf_${esc(f.id)}" data-fid="${esc(f.id)}">
             <option value="">${isZh ? '— 請選擇 —' : '— Select —'}</option>
-            ${opts.map((o, i) => `<option value="${enOpts[i] || o}">${o}</option>`).join('')}
+            ${opts.map((o, i) => `<option value="${esc(enOpts[i] || o)}">${esc(o)}</option>`).join('')}
           </select>
-          <div class="field-error" id="err-cf_${f.id}"></div>
+          <div class="field-error" id="err-cf_${esc(f.id)}"></div>
         </div>`;
       }
       if (f.type === 'checkbox') {
@@ -596,18 +743,18 @@ function renderCustomFields() {
         const enOpts = f.options_en || [];
         const checkboxes = opts.map((o, i) => `
           <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;margin-bottom:7px;font-size:14px;transition:border-color 0.2s" onclick="this.style.borderColor=this.querySelector('input').checked?'#e2e8f0':'#2e7d32'">
-            <input type="checkbox" name="cf_${f.id}" value="${enOpts[i] || o}" style="width:16px;height:16px;cursor:pointer;accent-color:#2e7d32"> ${o}
+            <input type="checkbox" name="cf_${esc(f.id)}" value="${esc(enOpts[i] || o)}" style="width:16px;height:16px;cursor:pointer;accent-color:#2e7d32"> ${esc(o)}
           </label>`).join('');
         return `<div class="field">
           <label>${label}${req}</label>
-          <div id="cf_${f.id}">${checkboxes}</div>
-          <div class="field-error" id="err-cf_${f.id}"></div>
+          <div id="cf_${esc(f.id)}">${checkboxes}</div>
+          <div class="field-error" id="err-cf_${esc(f.id)}"></div>
         </div>`;
       }
       return `<div class="field">
-        <label for="cf_${f.id}">${label}${req}</label>
-        <input type="text" id="cf_${f.id}" data-fid="${f.id}">
-        <div class="field-error" id="err-cf_${f.id}"></div>
+        <label for="cf_${esc(f.id)}">${label}${req}</label>
+        <input type="text" id="cf_${esc(f.id)}" data-fid="${esc(f.id)}" maxlength="500">
+        <div class="field-error" id="err-cf_${esc(f.id)}"></div>
       </div>`;
     }).join('')}
   </div>`;
@@ -617,10 +764,10 @@ function renderProgrammes() {
   const isZh = lang === 'zh';
   const progs = eventConfig?._programmes || [];
   document.getElementById('prog-grid').innerHTML = progs.map(p => `
-    <div class="prog-card${selectedProg === p.value ? ' selected' : ''}" onclick="selectProg('${p.value}')">
-      <div class="prog-icon">${p.icon}</div>
-      <div class="prog-name">${isZh ? p.zh : p.en}</div>
-      <div class="prog-age">${isZh ? p.ageZh : p.ageEn}</div>
+    <div class="prog-card${selectedProg === p.value ? ' selected' : ''}" onclick="selectProg(${JSON.stringify(p.value)})">
+      <div class="prog-icon">${esc(p.icon)}</div>
+      <div class="prog-name">${esc(isZh ? p.zh : p.en)}</div>
+      <div class="prog-age">${esc(isZh ? p.ageZh : p.ageEn)}</div>
     </div>
   `).join('');
 }
@@ -649,19 +796,7 @@ function setErr(id, msg) {
 
 function validate() {
   const t = T[lang]; let ok = true;
-  ['firstName','lastName','phone','childName'].forEach(id => {
-    const v = document.getElementById(id).value.trim();
-    if (!v) { setErr(id, t.errReq); ok = false; } else setErr(id, '');
-  });
-  const email = document.getElementById('email').value.trim();
-  if (!email) { setErr('email', t.errReq); ok = false; }
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('email', t.errEmail); ok = false; }
-  else setErr('email', '');
-  if (!document.getElementById('childAge').value) { setErr('childAge', t.errReq); ok = false; } else setErr('childAge', '');
-  if (!selectedProg) {
-    setErr('programme', t.errProg); ok = false;
-    document.querySelectorAll('.prog-card').forEach(c => c.classList.add('is-error'));
-  }
+  // Step 3 custom fields only — steps 1+2 already validated on Next
   customFields.forEach(f => {
     if (f.required) {
       if (f.type === 'checkbox') {
@@ -700,28 +835,37 @@ async function postData(payload) {
 
 function showSuccess(regId) {
   document.getElementById('reg-form').style.display = 'none';
+  document.getElementById('step-bar').style.display = 'none';
   const ss = document.getElementById('success-screen');
   ss.style.display = 'block';
   document.getElementById('suc-reg-id').textContent = regId;
+  const ec = eventConfig || {};
+  const eventText = (ec.school_name || 'School') + ' — ' + (ec.event_name || 'Open Day');
+  const venue = (lang === 'zh' ? (ec.venue_zh || ec.venue) : ec.venue) || '';
   const calUrl = 'https://www.google.com/calendar/render?action=TEMPLATE'
-    + '&text=' + encodeURIComponent(CONFIG.schoolName + ' Open Day')
-    + '&dates=' + CONFIG.eventStart + '/' + CONFIG.eventEnd
-    + '&details=' + encodeURIComponent('Show your email QR code at the entrance.')
-    + '&location=' + encodeURIComponent((lang === 'zh' ? CONFIG.venueZh : CONFIG.venue) + ', Hong Kong');
+    + '&text=' + encodeURIComponent(eventText)
+    + '&dates=' + (ec.event_start_ts || '') + '/' + (ec.event_end_ts || '')
+    + '&details=' + encodeURIComponent(lang === 'zh' ? '請在入場時出示電郵中的QR碼。' : 'Show your email QR code at the entrance.')
+    + '&location=' + encodeURIComponent(venue);
   document.getElementById('cal-link').href = calUrl;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 document.getElementById('reg-form').addEventListener('submit', async e => {
   e.preventDefault();
-  if (!validate()) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (!validateStep1() || !validateStep2() || !validate()) {
+    const firstErr = document.querySelector('.field-error.show');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   document.getElementById('submit-text').textContent = T[lang].submitting;
   document.getElementById('error-banner').classList.remove('show');
 
-  const regId = 'OD-' + Date.now();
+  const regId = 'OD-' + Date.now().toString(36).toUpperCase() + '-'
+    + Array.from(crypto.getRandomValues(new Uint8Array(4)), b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
   lastPayload = {
     event_id:      eventConfig?.event_id || '',
     firstName:     document.getElementById('firstName').value.trim(),
@@ -759,6 +903,22 @@ document.getElementById('reg-form').addEventListener('submit', async e => {
   }
 });
 
+async function resendConfirmation() {
+  if (!lastPayload) return;
+  const btn = document.getElementById('resend-btn');
+  btn.textContent = 'Sending…'; btn.disabled = true;
+  try {
+    await fetch(`https://${CONFIG.n8nDomain}/webhook/openday-resend`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ registration_id: lastPayload.registrationId, email: lastPayload.email, event_id: lastPayload.event_id })
+    });
+    btn.textContent = '✓ Sent!';
+  } catch {
+    btn.textContent = 'Failed — try again';
+    btn.disabled = false;
+  }
+}
+
 async function retrySubmit() {
   if (!lastPayload) return;
   document.getElementById('error-banner').classList.remove('show');
@@ -766,6 +926,51 @@ async function retrySubmit() {
   if (result.ok) showSuccess(lastPayload.registrationId);
   else document.getElementById('error-banner').classList.add('show');
 }
+
+// ── 6.4 HTTPS enforcement ──
+if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  location.replace('https://' + location.href.slice(location.protocol.length));
+}
+
+// ── 2.1 Warn before leaving with data entered ──
+window.addEventListener('beforeunload', e => {
+  if (document.getElementById('firstName')?.value.trim()) {
+    e.preventDefault(); e.returnValue = '';
+  }
+});
+
+// ── 3.4 Capacity polling every 60s ──
+let _capacityPollTimer = null;
+function startCapacityPolling() {
+  clearInterval(_capacityPollTimer);
+  _capacityPollTimer = setInterval(async () => {
+    if (!eventConfig?.event_id) return;
+    try {
+      const res = await fetch(`https://${CONFIG.n8nDomain}/webhook/openday-event-info?id=${encodeURIComponent(eventConfig.event_id)}`);
+      const data = await res.json();
+      if (data?.is_full) {
+        clearInterval(_capacityPollTimer);
+        const banner = document.getElementById('error-banner');
+        document.getElementById('error-msg').textContent = T[lang].errFull;
+        banner.classList.add('show');
+        document.getElementById('submit-btn').disabled = true;
+        document.getElementById('submit-btn').style.background = '#cbd5e1';
+      }
+    } catch {}
+  }, 60000);
+}
+
+// ── 3.5 Preview mode ──
+(function initPreviewMode() {
+  if (new URLSearchParams(window.location.search).get('preview') !== '1') return;
+  document.addEventListener('DOMContentLoaded', () => {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#f59e0b;color:#1a2332;text-align:center;padding:10px;font-size:14px;font-weight:700;z-index:9999;letter-spacing:0.3px';
+    banner.textContent = '👁 Preview Mode — This is exactly what parents see. Submission is disabled.';
+    document.body.prepend(banner);
+    document.getElementById('reg-form')?.addEventListener('submit', ev => { ev.preventDefault(); alert('Preview mode — submission disabled.'); }, true);
+  });
+})();
 
 // ── Init ──
 loadEventConfig();

@@ -157,7 +157,7 @@
     .status-registered { background: #dbeafe; color: #1e40af; }
     .status-attended { background: #dcfce7; color: #166534; }
     .status-noshow { background: #fee2e2; color: #991b1b; }
-    .btn-checkin { padding: 5px 12px; background: #2e7d32; color: white; border: none; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap; }
+    .btn-checkin { padding: 8px 14px; min-height: 36px; background: #2e7d32; color: white; border: none; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap; }
     .btn-checkin:hover { background: #1b5e20; }
     .btn-checkin:disabled { background: #94a3b8; cursor: not-allowed; }
     .no-regs { text-align: center; padding: 40px; color: #94a3b8; font-size: 14px; }
@@ -212,6 +212,42 @@
     .fq-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     textarea.form-input { resize: vertical; min-height: 70px; }
 
+    /* ── TEMPLATES ── */
+    .tpl-selector-bar { display: flex; gap: 6px; margin-bottom: 20px; }
+    .tpl-selector {
+      padding: 8px 18px; border-radius: 9px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid #e2e8f0; background: white; color: #64748b;
+      font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .tpl-selector.active { background: #1a2332; color: white; border-color: #1a2332; }
+    .tpl-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .tpl-preview-box {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+      padding: 20px; font-size: 13px; line-height: 1.8; color: #374151;
+      min-height: 260px; white-space: pre-wrap; word-break: break-word;
+    }
+    .var-hints { font-size: 11px; color: #94a3b8; margin-bottom: 6px; line-height: 1.7; }
+    .var-hint { display: inline-block; background: #f3f4f6; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 11px; margin: 1px; color: #374151; }
+
+    /* ── STANDALONE FORM BUILDER ── */
+    .fbuilder-wrap { padding: 0; }
+    .fbuilder-question {
+      background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px;
+      padding: 16px; margin-bottom: 10px; position: relative;
+    }
+    .fbuilder-question.dragging { opacity: 0.5; }
+    .fbuilder-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .drag-handle { cursor: grab; color: #cbd5e1; font-size: 18px; user-select: none; }
+    .drag-handle:active { cursor: grabbing; }
+    .fbuilder-num { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; }
+    .fbuilder-remove { background: none; border: none; color: #ef4444; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; }
+
+    /* ── SETTINGS MODAL ── */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .settings-grid .full { grid-column: 1 / -1; }
+    .color-row { display: flex; align-items: center; gap: 10px; }
+    .color-swatch { width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #e2e8f0; cursor: pointer; padding: 0; }
+
     @media (max-width: 640px) {
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .edit-form-grid { grid-template-columns: 1fr; }
@@ -219,6 +255,9 @@
       .event-detail-header { flex-direction: column; }
       .fq-grid { grid-template-columns: 1fr; }
       .fq-opts-grid { grid-template-columns: 1fr; }
+      .tpl-two-col { grid-template-columns: 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .settings-grid .full { grid-column: 1; }
     }
   </style>
 </head>
@@ -235,6 +274,7 @@
   </div>
   <div class="nav-right">
     <button class="btn-sm btn-green" id="nav-new-event-btn" onclick="openCreateEventModal()" style="display:none">+ New Event</button>
+    <button class="btn-sm btn-ghost-sm" onclick="openSettings()" title="School Settings">⚙️</button>
     <button class="btn-sm btn-ghost-sm" onclick="signOut()">Sign Out</button>
   </div>
 </nav>
@@ -327,7 +367,9 @@
       <div class="tabs">
         <button class="tab active" id="tab-regs" onclick="switchTab('regs')">Registrations</button>
         <button class="tab" id="tab-qr" onclick="switchTab('qr')">📷 Scan QR</button>
-        <button class="tab" id="tab-details" onclick="switchTab('details')">Event Details</button>
+        <button class="tab" id="tab-builder" onclick="switchTab('builder')">📋 Form Builder</button>
+        <button class="tab" id="tab-templates" onclick="switchTab('templates')">📧 Templates</button>
+        <button class="tab" id="tab-details" onclick="switchTab('details')">Details</button>
       </div>
 
       <!-- Registrations Tab -->
@@ -344,6 +386,7 @@
               <option value="Attended">Attended</option>
               <option value="No-Show">No-Show</option>
             </select>
+            <button class="btn-sm btn-outline" onclick="remindAll()">↩ Remind All</button>
             <button class="btn-sm btn-outline" onclick="exportCSV()">Export CSV</button>
             <button class="btn-sm btn-outline" onclick="loadRegistrations()">↺ Refresh</button>
           </div>
@@ -378,6 +421,14 @@
           <div id="qr-start-wrap" style="text-align:center;margin-top:16px">
             <button class="btn-sm btn-green" onclick="startQRScanner()" id="qr-start-btn" style="padding:11px 28px;font-size:14px">Start Camera</button>
           </div>
+          <div style="margin-top:20px;border-top:1px solid #f0f0f0;padding-top:16px">
+            <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Or enter Registration ID manually</div>
+            <div style="display:flex;gap:8px">
+              <input class="search-input" type="text" id="manual-reg-id" placeholder="OD-XXXXXX-XXXX" style="flex:1" onkeydown="if(event.key==='Enter')manualQRCheckin()">
+              <button class="btn-sm btn-green" onclick="manualQRCheckin()" style="padding:9px 18px">Check In</button>
+            </div>
+            <div id="manual-checkin-result" style="margin-top:10px;font-size:13px"></div>
+          </div>
         </div>
       </div>
 
@@ -387,8 +438,123 @@
           <div id="event-details-view"></div>
         </div>
       </div>
-    </div>
 
+      <!-- Form Builder Tab -->
+      <div id="tab-content-builder" style="display:none">
+        <div class="card" style="padding:24px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:16px;font-weight:800;margin-bottom:4px">Custom Questions</div>
+              <div style="font-size:13px;color:#64748b">Add extra questions to this event's registration form. Bilingual EN / 中文 supported.</div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn-sm btn-outline" onclick="addBuilderQuestion()">+ Add Question</button>
+              <button class="btn-sm btn-green" id="save-builder-btn" onclick="saveFormBuilder()">Save Changes</button>
+            </div>
+          </div>
+          <div id="standalone-builder-list"></div>
+          <div id="builder-preview-strip" style="display:none;margin-top:20px;border-top:1px solid #f0f0f0;padding-top:16px">
+            <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Parent Preview</div>
+            <div id="builder-preview-content" style="background:#f8fafc;border-radius:12px;padding:20px;max-width:480px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Templates Tab -->
+      <div id="tab-content-templates" style="display:none">
+        <div class="card" style="padding:24px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:16px;font-weight:800;margin-bottom:4px">Email Templates</div>
+              <div style="font-size:13px;color:#64748b">Customise the emails sent to parents. Use variables like <code style="background:#f3f4f6;padding:1px 5px;border-radius:4px">{{parent_name}}</code> to personalise.</div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn-sm btn-outline" id="test-email-btn" onclick="sendTestEmail()">Send Test →</button>
+              <button class="btn-sm btn-green" onclick="saveTemplate()">Save Template</button>
+            </div>
+          </div>
+
+          <div class="tpl-selector-bar">
+            <button class="tpl-selector active" id="tpl-sel-confirmation" onclick="selectTemplate('confirmation')">✅ Confirmation</button>
+            <button class="tpl-selector" id="tpl-sel-reminder" onclick="selectTemplate('reminder')">🔔 Reminder</button>
+          </div>
+
+          <div class="tpl-two-col">
+            <!-- Editor -->
+            <div>
+              <div class="form-field">
+                <label class="form-label">Subject Line</label>
+                <input class="form-input" id="tpl-subject" placeholder="e.g. Your Open Day registration is confirmed!" oninput="updateTplPreview();markTemplatesDirty()">
+              </div>
+              <div class="form-field" style="margin-top:14px">
+                <label class="form-label">Email Body</label>
+                <div class="var-hints">
+                  Available variables:
+                  <span class="var-hint">{{parent_name}}</span>
+                  <span class="var-hint">{{child_name}}</span>
+                  <span class="var-hint">{{event_name}}</span>
+                  <span class="var-hint">{{event_date}}</span>
+                  <span class="var-hint">{{venue}}</span>
+                  <span class="var-hint">{{registration_id}}</span>
+                </div>
+                <textarea class="form-input" id="tpl-body" rows="14" style="resize:vertical;font-family:monospace;font-size:13px" oninput="updateTplPreview();markTemplatesDirty()" placeholder="Dear {{parent_name}},&#10;&#10;Thank you for registering for our Open Day!&#10;&#10;Event: {{event_name}}&#10;Date: {{event_date}}&#10;Venue: {{venue}}&#10;&#10;Your registration ID is: {{registration_id}}&#10;&#10;We look forward to seeing you and {{child_name}}."></textarea>
+              </div>
+            </div>
+            <!-- Preview -->
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Live Preview</div>
+              <div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Subject: <strong id="tpl-preview-subject" style="color:#1a2332">—</strong></div>
+              <div class="tpl-preview-box" id="tpl-preview-body">Start typing to see a preview…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div class="modal-title" style="margin:0">School Settings</div>
+      <button class="btn-sm btn-ghost-sm" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-grid">
+      <div class="full form-field">
+        <label class="form-label">School Name (as shown on emails)</label>
+        <input class="form-input" type="text" id="cfg-school-name" placeholder="e.g. Greenfield International School">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Email From Name</label>
+        <input class="form-input" type="text" id="cfg-from-name" placeholder="e.g. Greenfield Open Day">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Reply-To Email</label>
+        <input class="form-input" type="email" id="cfg-reply-to" placeholder="admissions@school.edu.hk">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Logo URL <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+        <input class="form-input" type="url" id="cfg-logo-url" placeholder="https://…">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Brand Colour</label>
+        <div class="color-row">
+          <input type="color" class="color-swatch" id="cfg-brand-color" value="#2e7d32">
+          <input class="form-input" type="text" id="cfg-brand-color-text" placeholder="#2e7d32" style="flex:1" oninput="syncColorFromText()">
+        </div>
+      </div>
+      <div class="full form-field">
+        <label class="form-label">Test Email Address</label>
+        <input class="form-input" type="email" id="cfg-test-email" placeholder="your@email.com">
+        <div style="font-size:12px;color:#94a3b8;margin-top:5px">Used when you click "Send Test" in the Templates tab.</div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-sm btn-outline" onclick="closeSettings()">Cancel</button>
+      <button class="btn-sm btn-green" onclick="saveSettings()">Save Settings</button>
+    </div>
   </div>
 </div>
 
@@ -476,14 +642,17 @@ const CONFIG = {
 // ================================================================
 
 const state = {
-  school:        null,
-  events:        [],
-  selectedEvent: null,
-  regs:          [],
+  school:         null,
+  events:         [],
+  selectedEvent:  null,
+  regs:           [],
   editingEventId: null,
-  programmes:    [],
-  formQuestions: [],
-  activeTab:     'regs',
+  programmes:     [],
+  formQuestions:  [],
+  activeTab:      'regs',
+  templates:      null,
+  activeTemplate: 'confirmation',
+  schoolSettings: {},
 };
 
 // ── API ──────────────────────────────────────────────────────────
@@ -598,6 +767,8 @@ async function viewEvent(eventId) {
   if (!ev) return;
   state.selectedEvent = ev;
   state.regs = [];
+  try { state.formQuestions = JSON.parse(ev.form_fields || '[]'); } catch { state.formQuestions = []; }
+  state.activeTab = 'regs';
   showView('event');
   await loadRegistrations();
 }
@@ -707,10 +878,11 @@ function renderRegs() {
       <td>${esc(r.programme || '—')}</td>
       <td><span class="status-pill ${statusClass}">${r.attendance_status}</span></td>
       <td style="font-size:12px;color:#64748b">${checkinTime}</td>
-      <td>
+      <td style="white-space:nowrap">
         <button class="btn-checkin" onclick="doCheckIn('${r.registration_id}')" ${checkedIn ? 'disabled' : ''}>
           ${checkedIn ? '✓ Done' : 'Check In'}
         </button>
+        <button onclick="remindOne('${esc(r.email)}','${esc(r.parent_name)}')" style="background:none;border:1.5px solid #e2e8f0;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;color:#64748b;margin-left:6px" title="Send reminder">↩</button>
         ${customHtml ? `<button onclick="toggleCustomAnswers('${r.registration_id}')" style="background:none;border:none;color:#2e7d32;font-size:11px;cursor:pointer;display:block;margin-top:4px;font-family:Inter,sans-serif;padding:0">▶ Details</button>` : ''}
       </td>
     </tr>
@@ -740,11 +912,17 @@ async function doCheckIn(regId) {
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(tab) {
   if (state.activeTab === 'qr' && tab !== 'qr') stopQRScanner();
+  if (state.activeTab === 'templates' && tab !== 'templates' && templatesDirty) {
+    if (!confirm('You have unsaved template changes. Leave without saving?')) return;
+    templatesDirty = false;
+  }
   state.activeTab = tab;
-  ['regs','qr','details'].forEach(t => {
+  ['regs','qr','builder','templates','details'].forEach(t => {
     document.getElementById(`tab-content-${t}`).style.display = t === tab ? 'block' : 'none';
     document.getElementById(`tab-${t}`).className = 'tab' + (t === tab ? ' active' : '');
   });
+  if (tab === 'builder') renderBuilderStandalone();
+  if (tab === 'templates') loadTemplatesForEvent();
 }
 
 // ── CREATE / EDIT EVENT ──────────────────────────────────────────
@@ -924,7 +1102,7 @@ function exportCSV() {
 }
 
 // ── UTILS ────────────────────────────────────────────────────────
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 let toastTimer;
 function toast(msg, green = false) {
@@ -1081,10 +1259,364 @@ function resetQRScanner() {
   document.getElementById('qr-start-wrap').style.display = 'block';
 }
 
+async function manualQRCheckin() {
+  const token = document.getElementById('manual-reg-id').value.trim();
+  const resultEl = document.getElementById('manual-checkin-result');
+  if (!token) { resultEl.textContent = 'Please enter a registration ID.'; resultEl.style.color = '#b91c1c'; return; }
+  resultEl.textContent = 'Checking in…'; resultEl.style.color = '#64748b';
+  const res = await api('POST', 'openday-checkin-qr', {
+    checkin_token: token,
+    school_id: state.school.school_id,
+    password: state.school.password
+  });
+  if (res.success) {
+    const reg = state.regs.find(r => r.registration_id === res.registration_id);
+    if (reg) { reg.attendance_status = 'Attended'; reg.check_in_time = res.check_in_time; }
+    updateEventStats();
+    resultEl.innerHTML = `<span style="color:#166534;font-weight:700">✓ Checked in: ${esc(res.parent_name)} — ${esc(res.child_name || '')}</span>`;
+    document.getElementById('manual-reg-id').value = '';
+    toast(`✓ ${res.parent_name} checked in!`, true);
+  } else {
+    resultEl.innerHTML = `<span style="color:#b91c1c;font-weight:600">✕ ${esc(res.message || 'Not found. Check the ID and try again.')}</span>`;
+  }
+}
+
 // Close modal on overlay click
 document.getElementById('event-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+document.getElementById('settings-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+
+// ── REMIND ───────────────────────────────────────────────────────
+async function remindOne(email, name) {
+  const ev = state.selectedEvent;
+  const res = await api('POST', 'openday-remind', {
+    school_id: state.school.school_id,
+    password: state.school.password,
+    event_id: ev.event_id,
+    email, name
+  });
+  if (res.success || res.cors === false) toast(`Reminder sent to ${name}`, true);
+  else toast('Failed to send reminder.');
+}
+
+async function remindAll() {
+  const ev = state.selectedEvent;
+  const pending = state.regs.filter(r => r.attendance_status !== 'Attended');
+  if (!pending.length) { toast('No registrations to remind.'); return; }
+  if (!confirm(`Send reminder to ${pending.length} registered parent${pending.length > 1 ? 's' : ''}?`)) return;
+  const res = await api('POST', 'openday-remind-all', {
+    school_id: state.school.school_id,
+    password: state.school.password,
+    event_id: ev.event_id
+  });
+  if (res.success || res.cors === false) toast(`Reminders sent to ${pending.length} parents!`, true);
+  else toast('Failed to send reminders.');
+}
+
+// ── STANDALONE FORM BUILDER ──────────────────────────────────────
+function renderBuilderStandalone() {
+  const list = document.getElementById('standalone-builder-list');
+  if (!list) return;
+  if (!state.formQuestions.length) {
+    list.innerHTML = `
+      <div class="fq-empty">No custom questions yet. Click <strong>+ Add Question</strong> to collect extra info from parents.</div>`;
+    document.getElementById('builder-preview-strip').style.display = 'none';
+    return;
+  }
+  list.innerHTML = state.formQuestions.map((q, i) => `
+    <div class="fbuilder-question" id="bq-${q.id}">
+      <div class="fbuilder-header">
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <span class="fbuilder-num">Question ${i + 1}</span>
+        <div style="display:flex;gap:8px">
+          <button type="button" onclick="moveBQ(${i},-1)" style="background:none;border:1.5px solid #e2e8f0;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:13px;color:#64748b" ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button type="button" onclick="moveBQ(${i},1)" style="background:none;border:1.5px solid #e2e8f0;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:13px;color:#64748b" ${i === state.formQuestions.length - 1 ? 'disabled' : ''}>↓</button>
+          <button type="button" class="fbuilder-remove" onclick="removeBQ('${q.id}')">✕ Remove</button>
+        </div>
+      </div>
+      <div class="fq-grid">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">English Label <span class="required-star">*</span></label>
+          <input class="form-input" type="text" value="${esc(q.label_en)}" oninput="updateBQ('${q.id}','label_en',this.value)" placeholder="e.g. Dietary requirements" style="font-size:13px;padding:9px 11px">
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">中文標籤</label>
+          <input class="form-input" type="text" value="${esc(q.label_zh)}" oninput="updateBQ('${q.id}','label_zh',this.value)" placeholder="例：飲食需求" style="font-size:13px;padding:9px 11px">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">Field Type</label>
+          <select class="filter-select" style="width:100%;font-size:13px" onchange="updateBQ('${q.id}','type',this.value)">
+            <option value="text" ${q.type==='text'?'selected':''}>Short Text</option>
+            <option value="dropdown" ${q.type==='dropdown'?'selected':''}>Dropdown (pick one)</option>
+            <option value="checkbox" ${q.type==='checkbox'?'selected':''}>Checkboxes (pick many)</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-top:22px">
+          <input type="checkbox" id="bqr-${q.id}" ${q.required?'checked':''} onchange="updateBQ('${q.id}','required',this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:#2e7d32">
+          <label for="bqr-${q.id}" style="font-size:13px;font-weight:600;cursor:pointer">Required</label>
+        </div>
+      </div>
+      ${(q.type==='dropdown'||q.type==='checkbox')?`
+      <div class="fq-opts-grid" style="margin-top:10px">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">Options (EN) — one per line</label>
+          <textarea class="form-input" rows="3" oninput="updateBQ('${q.id}','options_en_raw',this.value)" placeholder="Option 1&#10;Option 2&#10;Option 3" style="font-size:13px;padding:9px 11px">${esc((q.options_en||[]).join('\n'))}</textarea>
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">選項（中文）— 每行一個</label>
+          <textarea class="form-input" rows="3" oninput="updateBQ('${q.id}','options_zh_raw',this.value)" placeholder="選項 1&#10;選項 2&#10;選項 3" style="font-size:13px;padding:9px 11px">${esc((q.options_zh||[]).join('\n'))}</textarea>
+        </div>
+      </div>` : ''}
+    </div>
+  `).join('');
+  renderBuilderPreview();
+}
+
+function addBuilderQuestion() {
+  state.formQuestions.push({ id: 'q_' + Date.now(), type: 'text', label_en: '', label_zh: '', options_en: [], options_zh: [], required: false });
+  renderBuilderStandalone();
+}
+
+function removeBQ(id) {
+  state.formQuestions = state.formQuestions.filter(q => q.id !== id);
+  renderBuilderStandalone();
+}
+
+function updateBQ(id, field, value) {
+  const q = state.formQuestions.find(q => q.id === id);
+  if (!q) return;
+  if (field === 'options_en_raw') q.options_en = value.split('\n').map(s => s.trim()).filter(Boolean);
+  else if (field === 'options_zh_raw') q.options_zh = value.split('\n').map(s => s.trim()).filter(Boolean);
+  else if (field === 'required') q.required = value;
+  else q[field] = value;
+  if (field === 'type') renderBuilderStandalone();
+  else renderBuilderPreview();
+}
+
+function moveBQ(idx, dir) {
+  const qs = state.formQuestions;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= qs.length) return;
+  [qs[idx], qs[newIdx]] = [qs[newIdx], qs[idx]];
+  renderBuilderStandalone();
+}
+
+function renderBuilderPreview() {
+  const strip = document.getElementById('builder-preview-strip');
+  const content = document.getElementById('builder-preview-content');
+  if (!state.formQuestions.length) { strip.style.display = 'none'; return; }
+  strip.style.display = 'block';
+  content.innerHTML = state.formQuestions.map(q => {
+    const label = q.label_en || '(untitled)';
+    const req = q.required ? ' <span style="color:#ef4444">*</span>' : '';
+    if (q.type === 'dropdown') {
+      const opts = q.options_en.length ? q.options_en.map(o => `<option>${esc(o)}</option>`).join('') : '<option>Option 1</option>';
+      return `<div style="margin-bottom:14px"><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">${esc(label)}${req}</label><select style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;background:white;color:#64748b"><option>— Select —</option>${opts}</select></div>`;
+    }
+    if (q.type === 'checkbox') {
+      const opts = q.options_en.length ? q.options_en : ['Option 1', 'Option 2'];
+      return `<div style="margin-bottom:14px"><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:8px">${esc(label)}${req}</label>${opts.map(o => `<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;margin-bottom:6px;font-size:13px;cursor:pointer"><input type="checkbox" style="accent-color:#2e7d32"> ${esc(o)}</label>`).join('')}</div>`;
+    }
+    return `<div style="margin-bottom:14px"><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">${esc(label)}${req}</label><input type="text" disabled placeholder="Parent's answer" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;background:#fafafa;color:#94a3b8"></div>`;
+  }).join('');
+}
+
+async function saveFormBuilder() {
+  const btn = document.getElementById('save-builder-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  const res = await api('POST', 'openday-update-event', {
+    event_id: state.selectedEvent.event_id,
+    school_id: state.school.school_id,
+    password: state.school.password,
+    form_fields: JSON.stringify(state.formQuestions)
+  });
+  btn.disabled = false; btn.textContent = 'Save Changes';
+  if (res.success || res.cors === false) {
+    state.selectedEvent.form_fields = JSON.stringify(state.formQuestions);
+    const ev = state.events.find(e => e.event_id === state.selectedEvent.event_id);
+    if (ev) ev.form_fields = state.selectedEvent.form_fields;
+    toast('Form saved!', true);
+  } else {
+    toast('Save failed. Check connection.');
+  }
+}
+
+// ── 6.4 HTTPS enforcement ──
+if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  location.replace('https://' + location.href.slice(location.protocol.length));
+}
+
+// ── TEMPLATES ────────────────────────────────────────────────────
+const tplDefaults = {
+  confirmation: {
+    subject: 'Your Open Day registration is confirmed — {{event_name}}',
+    body: `Dear {{parent_name}},\n\nThank you for registering for our Open Day!\n\nEvent: {{event_name}}\nDate: {{event_date}}\nVenue: {{venue}}\nRegistration ID: {{registration_id}}\n\nPlease show your confirmation email (or QR code) at the entrance on the day.\n\nWe look forward to welcoming you and {{child_name}}.\n\nWarm regards,\nThe Admissions Team`
+  },
+  reminder: {
+    subject: 'Reminder — Open Day is tomorrow! {{event_name}}',
+    body: `Dear {{parent_name}},\n\nThis is a friendly reminder that our Open Day is tomorrow!\n\nEvent: {{event_name}}\nDate: {{event_date}}\nVenue: {{venue}}\n\nPlease remember to bring your registration QR code (in your confirmation email).\n\nSee you tomorrow!\n\nWarm regards,\nThe Admissions Team`
+  }
+};
+
+function loadTemplatesForEvent() {
+  const ev = state.selectedEvent;
+  try {
+    const saved = JSON.parse(ev.email_templates || '{}');
+    state.templates = {
+      confirmation: { subject: saved.confirmation_subject || tplDefaults.confirmation.subject, body: saved.confirmation_body || tplDefaults.confirmation.body },
+      reminder: { subject: saved.reminder_subject || tplDefaults.reminder.subject, body: saved.reminder_body || tplDefaults.reminder.body }
+    };
+  } catch {
+    state.templates = { confirmation: { ...tplDefaults.confirmation }, reminder: { ...tplDefaults.reminder } };
+  }
+  state.activeTemplate = 'confirmation';
+  renderTemplateEditor();
+}
+
+function selectTemplate(type) {
+  // Save current edits before switching
+  if (state.templates) {
+    state.templates[state.activeTemplate] = {
+      subject: document.getElementById('tpl-subject').value,
+      body: document.getElementById('tpl-body').value
+    };
+  }
+  state.activeTemplate = type;
+  ['confirmation','reminder'].forEach(t => {
+    document.getElementById(`tpl-sel-${t}`).className = 'tpl-selector' + (t === type ? ' active' : '');
+  });
+  renderTemplateEditor();
+}
+
+let templatesDirty = false;
+
+function renderTemplateEditor() {
+  const t = state.templates[state.activeTemplate];
+  document.getElementById('tpl-subject').value = t.subject || '';
+  document.getElementById('tpl-body').value = t.body || '';
+  templatesDirty = false;
+  updateTplPreview();
+}
+
+function markTemplatesDirty() { templatesDirty = true; }
+
+function updateTplPreview() {
+  const subject = document.getElementById('tpl-subject').value;
+  const body = document.getElementById('tpl-body').value;
+  const ev = state.selectedEvent || {};
+  const sampleVars = {
+    '{{parent_name}}': 'Chan Siu Ming',
+    '{{child_name}}': 'Chan Siu Yee',
+    '{{event_name}}': ev.event_name || 'Open Day 2026',
+    '{{event_date}}': ev.event_date_display || ev.event_date || 'Saturday, 5 September 2026',
+    '{{venue}}': ev.venue || 'Main Campus, 1 School Road',
+    '{{registration_id}}': 'OD-1234567890'
+  };
+  let previewSubject = subject;
+  let previewBody = body;
+  Object.entries(sampleVars).forEach(([k, v]) => {
+    previewSubject = previewSubject.replace(new RegExp(k.replace(/[{}]/g, '\\$&'), 'g'), v);
+    previewBody = previewBody.replace(new RegExp(k.replace(/[{}]/g, '\\$&'), 'g'), v);
+  });
+  document.getElementById('tpl-preview-subject').textContent = previewSubject || '—';
+  document.getElementById('tpl-preview-body').textContent = previewBody || 'Start typing to see a preview…';
+}
+
+window.addEventListener('beforeunload', e => {
+  if (templatesDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+async function saveTemplate() {
+  if (!state.templates) return;
+  state.templates[state.activeTemplate] = {
+    subject: document.getElementById('tpl-subject').value,
+    body: document.getElementById('tpl-body').value
+  };
+  const templates = {
+    confirmation_subject: state.templates.confirmation.subject,
+    confirmation_body: state.templates.confirmation.body,
+    reminder_subject: state.templates.reminder.subject,
+    reminder_body: state.templates.reminder.body
+  };
+  const res = await api('POST', 'openday-update-event', {
+    event_id: state.selectedEvent.event_id,
+    school_id: state.school.school_id,
+    password: state.school.password,
+    email_templates: JSON.stringify(templates)
+  });
+  if (res.success || res.cors === false) {
+    state.selectedEvent.email_templates = JSON.stringify(templates);
+    templatesDirty = false;
+    toast('Template saved!', true);
+  } else {
+    toast('Save failed.');
+  }
+}
+
+async function sendTestEmail() {
+  const testAddr = state.schoolSettings?.testEmail || '';
+  const to = testAddr || prompt('Send test to (email address):');
+  if (!to) return;
+  const btn = document.getElementById('test-email-btn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const subject = document.getElementById('tpl-subject').value;
+  const body = document.getElementById('tpl-body').value;
+  const res = await api('POST', 'openday-send-test-email', {
+    school_id: state.school.school_id,
+    password: state.school.password,
+    to, subject: '[TEST] ' + subject, body
+  });
+  btn.disabled = false; btn.textContent = 'Send Test →';
+  if (res.success || res.cors === false) toast('Test email sent!', true);
+  else toast('Send failed. Check n8n workflow.');
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────
+state.schoolSettings = JSON.parse(localStorage.getItem('od_school_settings') || '{}');
+
+function openSettings() {
+  const s = state.schoolSettings;
+  document.getElementById('cfg-school-name').value = s.schoolName || '';
+  document.getElementById('cfg-from-name').value = s.fromName || '';
+  document.getElementById('cfg-reply-to').value = s.replyTo || '';
+  document.getElementById('cfg-logo-url').value = s.logoUrl || '';
+  document.getElementById('cfg-brand-color').value = s.brandColor || '#2e7d32';
+  document.getElementById('cfg-brand-color-text').value = s.brandColor || '#2e7d32';
+  document.getElementById('cfg-test-email').value = s.testEmail || '';
+  document.getElementById('settings-modal').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+
+function syncColorFromText() {
+  const val = document.getElementById('cfg-brand-color-text').value;
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) document.getElementById('cfg-brand-color').value = val;
+}
+
+document.getElementById('cfg-brand-color').addEventListener('input', function() {
+  document.getElementById('cfg-brand-color-text').value = this.value;
+});
+
+function saveSettings() {
+  state.schoolSettings = {
+    schoolName: document.getElementById('cfg-school-name').value.trim(),
+    fromName:   document.getElementById('cfg-from-name').value.trim(),
+    replyTo:    document.getElementById('cfg-reply-to').value.trim(),
+    logoUrl:    document.getElementById('cfg-logo-url').value.trim(),
+    brandColor: document.getElementById('cfg-brand-color').value,
+    testEmail:  document.getElementById('cfg-test-email').value.trim(),
+  };
+  localStorage.setItem('od_school_settings', JSON.stringify(state.schoolSettings));
+  closeSettings();
+  toast('Settings saved!', true);
+}
 </script>
 </body>
 </html>
