@@ -764,7 +764,7 @@ function renderProgrammes() {
   const isZh = lang === 'zh';
   const progs = eventConfig?._programmes || [];
   document.getElementById('prog-grid').innerHTML = progs.map(p => `
-    <div class="prog-card${selectedProg === p.value ? ' selected' : ''}" onclick="selectProg(${JSON.stringify(p.value)})">
+    <div class="prog-card${selectedProg === p.value ? ' selected' : ''}" onclick="selectProg('${p.value.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
       <div class="prog-icon">${esc(p.icon)}</div>
       <div class="prog-name">${esc(isZh ? p.zh : p.en)}</div>
       <div class="prog-age">${esc(isZh ? p.ageZh : p.ageEn)}</div>
