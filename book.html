@@ -296,23 +296,23 @@
       <div class="card">
         <div class="section-title" id="sec-parent">Your Details</div>
         <div class="field-row">
-          <div class="field">
+          <div class="field" id="wrap-firstName">
             <label for="firstName"><span id="lbl-fn">First Name</span> <span class="required">*</span></label>
             <input type="text" id="firstName" autocomplete="given-name" placeholder="Mei" maxlength="60">
             <div class="field-error" id="err-firstName"></div>
           </div>
-          <div class="field">
+          <div class="field" id="wrap-lastName">
             <label for="lastName"><span id="lbl-ln">Last Name</span> <span class="required">*</span></label>
             <input type="text" id="lastName" autocomplete="family-name" placeholder="Chan" maxlength="60">
             <div class="field-error" id="err-lastName"></div>
           </div>
         </div>
-        <div class="field">
+        <div class="field" id="wrap-email">
           <label for="email"><span id="lbl-em">Email Address</span> <span class="required">*</span></label>
           <input type="email" id="email" autocomplete="email" placeholder="your@email.com" maxlength="254">
           <div class="field-error" id="err-email"></div>
         </div>
-        <div class="field">
+        <div class="field" id="wrap-phone">
           <label for="phone"><span id="lbl-ph">WhatsApp / Phone</span> <span class="required">*</span></label>
           <input type="tel" id="phone" autocomplete="tel" placeholder="+852 9xxx xxxx" maxlength="20">
           <div class="field-error" id="err-phone"></div>
@@ -327,12 +327,12 @@
     <div class="step-panel" id="step-panel-2">
       <div class="card">
         <div class="section-title" id="sec-child">About Your Child</div>
-        <div class="field">
+        <div class="field" id="wrap-childName">
           <label for="childName"><span id="lbl-cn">Child's Name</span> <span class="required">*</span></label>
           <input type="text" id="childName" placeholder="Tom Chan" maxlength="80">
           <div class="field-error" id="err-childName"></div>
         </div>
-        <div class="field">
+        <div class="field" id="wrap-childAge">
           <label for="childAge"><span id="lbl-ca">Child's Age</span> <span class="required">*</span></label>
           <select id="childAge">
             <option value="" id="age-ph">Select age range</option>
@@ -345,7 +345,7 @@
           </select>
           <div class="field-error" id="err-childAge"></div>
         </div>
-        <div class="field">
+        <div class="field" id="wrap-programme">
           <label id="lbl-prog">Programme of Interest <span class="required">*</span></label>
           <div class="programme-grid" id="prog-grid"><!-- filled by JS --></div>
           <div class="field-error" id="err-programme"></div>
@@ -361,7 +361,7 @@
     <div class="step-panel" id="step-panel-3">
       <div class="card">
         <div class="section-title" id="sec-final">One More Thing</div>
-        <div class="field">
+        <div class="field" id="wrap-howDidYouHear">
           <label for="howDidYouHear"><span id="lbl-hear">How did you hear about us?</span></label>
           <select id="howDidYouHear">
             <option value="" id="h-ph">— Select / 請選擇 —</option>
@@ -374,7 +374,7 @@
             <option value="Other" id="h-other">Other</option>
           </select>
         </div>
-        <div class="field">
+        <div class="field" id="wrap-langPref">
           <label id="lbl-lp">Preferred Language for Emails</label>
           <div class="langpref-grid">
             <div class="langpref-card selected" id="lp-en" onclick="selectLangPref('English')">
@@ -452,6 +452,70 @@ const CONFIG = {
 let eventConfig = null;
 
 // ── Load event config from API ────────────────────────────────────
+const STD_DEFAULTS = {
+  firstName:     { label_en:'First Name',                    label_zh:'名字',            required:true,  enabled:true },
+  lastName:      { label_en:'Last Name',                     label_zh:'姓氏',            required:true,  enabled:true },
+  email:         { label_en:'Email Address',                 label_zh:'電郵地址',        required:true,  enabled:true },
+  phone:         { label_en:'WhatsApp / Phone',              label_zh:'WhatsApp / 電話', required:true,  enabled:true },
+  childName:     { label_en:"Child's Name",                  label_zh:'子女姓名',        required:true,  enabled:true },
+  childAge:      { label_en:"Child's Age",                   label_zh:'子女年齡',        required:true,  enabled:true },
+  programme:     { label_en:'Programme of Interest',         label_zh:'感興趣課程',      required:true,  enabled:true },
+  howDidYouHear: { label_en:'How did you hear about us?',    label_zh:'如何得知我們？',  required:false, enabled:true },
+  langPref:      { label_en:'Preferred Language for Emails', label_zh:'電郵語言偏好',    required:false, enabled:true },
+};
+
+function getSF(cfg, key) {
+  const d = STD_DEFAULTS[key] || {};
+  const c = (cfg || {})[key] || {};
+  return {
+    enabled:  c.enabled  !== undefined ? c.enabled  : (d.enabled  !== undefined ? d.enabled  : true),
+    required: c.required !== undefined ? c.required : (d.required !== undefined ? d.required : false),
+    label_en: c.label_en || d.label_en || key,
+    label_zh: c.label_zh || d.label_zh || key,
+  };
+}
+
+function applyStdConfig(cfg) {
+  // Helper to show/hide a field wrapper and update its label + required marker
+  function applyField(key, labelId, wrapperId, requiredStar) {
+    const sf = getSF(cfg, key);
+    const wrap = document.getElementById(wrapperId);
+    if (wrap) wrap.style.display = sf.enabled ? '' : 'none';
+    const lbl = document.getElementById(labelId);
+    if (lbl) {
+      lbl.textContent = lang === 'zh' ? sf.label_zh : sf.label_en;
+    }
+    if (requiredStar) {
+      const star = wrap && wrap.querySelector('.required');
+      if (star) star.style.display = sf.required ? '' : 'none';
+    }
+    const input = wrap && (wrap.querySelector('input') || wrap.querySelector('select'));
+    if (input) {
+      if (sf.required) input.setAttribute('data-required', '1');
+      else input.removeAttribute('data-required');
+    }
+  }
+
+  applyField('firstName',     'lbl-fn',   'wrap-firstName',     true);
+  applyField('lastName',      'lbl-ln',   'wrap-lastName',      true);
+  applyField('email',         'lbl-em',   'wrap-email',         true);
+  applyField('phone',         'lbl-ph',   'wrap-phone',         true);
+  applyField('childName',     'lbl-cn',   'wrap-childName',     true);
+  applyField('childAge',      'lbl-ca',   'wrap-childAge',      true);
+  applyField('howDidYouHear', 'lbl-hear', 'wrap-howDidYouHear', false);
+  applyField('langPref',      'lbl-lp',   'wrap-langPref',      false);
+
+  // Programme: hide entire field if disabled, also update label
+  const sfProg = getSF(cfg, 'programme');
+  const wrapProg = document.getElementById('wrap-programme');
+  if (wrapProg) wrapProg.style.display = sfProg.enabled ? '' : 'none';
+  const lblProg = document.getElementById('lbl-prog');
+  if (lblProg) lblProg.innerHTML = (lang === 'zh' ? sfProg.label_zh : sfProg.label_en) + (sfProg.required ? ' <span class="required">*</span>' : '');
+
+  // Store config on eventConfig for re-application on lang switch
+  if (eventConfig) eventConfig._stdCfg = cfg;
+}
+
 async function loadEventConfig() {
   const params = new URLSearchParams(window.location.search);
   const eventId = params.get('event');
@@ -485,7 +549,12 @@ function applyEventConfig(data) {
     en: p, zh: progNamesZh[p] || p,
     ageEn: progAgesEn[p] || '', ageZh: progAgesZh[p] || '',
   }));
-  try { customFields = JSON.parse(data.form_fields || '[]'); } catch { customFields = []; }
+  // Parse form_fields — supports old array format and new {_std, _custom} format
+  let _parsedFF = {};
+  try { _parsedFF = JSON.parse(data.form_fields || '{}'); } catch {}
+  if (Array.isArray(_parsedFF)) { customFields = _parsedFF; data._stdCfg = {}; }
+  else { customFields = _parsedFF._custom || []; data._stdCfg = _parsedFF._std || {}; }
+  applyStdConfig(data._stdCfg);
   document.title = `${data.school_name} — Open Day Registration`;
   document.getElementById('reg-form-wrap').style.display = 'block';
   document.getElementById('loading-state').style.display = 'none';
@@ -552,17 +621,23 @@ function goStep(step) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function sfEnabled(key) { return getSF(eventConfig?._stdCfg, key).enabled; }
+function sfRequired(key) { return getSF(eventConfig?._stdCfg, key).required; }
+
 function validateStep1() {
   const t = T[lang]; let ok = true;
   ['firstName','lastName'].forEach(id => {
+    if (!sfEnabled(id)) return;
     const v = document.getElementById(id).value.trim();
     if (!v) { setErr(id, t.errReq); ok = false; } else setErr(id, '');
   });
-  const phone = document.getElementById('phone').value.trim();
-  if (!phone) { setErr('phone', t.errReq); ok = false; }
-  else if (!/^(\+?852[\s-]?)?[2-9]\d{3}[\s-]?\d{4}$/.test(phone.replace(/\s/g,''))) {
-    setErr('phone', lang === 'zh' ? '請輸入有效的香港電話號碼' : 'Please enter a valid HK phone number'); ok = false;
-  } else setErr('phone', '');
+  if (sfEnabled('phone')) {
+    const phone = document.getElementById('phone').value.trim();
+    if (sfRequired('phone') && !phone) { setErr('phone', t.errReq); ok = false; }
+    else if (phone && !/^(\+?852[\s-]?)?[2-9]\d{3}[\s-]?\d{4}$/.test(phone.replace(/\s/g,''))) {
+      setErr('phone', lang === 'zh' ? '請輸入有效的香港電話號碼' : 'Please enter a valid HK phone number'); ok = false;
+    } else setErr('phone', '');
+  }
   const email = document.getElementById('email').value.trim();
   if (!email) { setErr('email', t.errReq); ok = false; }
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('email', t.errEmail); ok = false; }
@@ -572,10 +647,14 @@ function validateStep1() {
 
 function validateStep2() {
   const t = T[lang]; let ok = true;
-  const childName = document.getElementById('childName').value.trim();
-  if (!childName) { setErr('childName', t.errReq); ok = false; } else setErr('childName', '');
-  if (!document.getElementById('childAge').value) { setErr('childAge', t.errReq); ok = false; } else setErr('childAge', '');
-  if (!selectedProg) {
+  if (sfEnabled('childName') && sfRequired('childName')) {
+    const childName = document.getElementById('childName').value.trim();
+    if (!childName) { setErr('childName', t.errReq); ok = false; } else setErr('childName', '');
+  }
+  if (sfEnabled('childAge') && sfRequired('childAge')) {
+    if (!document.getElementById('childAge').value) { setErr('childAge', t.errReq); ok = false; } else setErr('childAge', '');
+  }
+  if (sfEnabled('programme') && sfRequired('programme') && !selectedProg) {
     setErr('programme', t.errProg); ok = false;
     document.querySelectorAll('.prog-card').forEach(c => c.classList.add('is-error'));
   }
@@ -715,6 +794,7 @@ function setLang(l) {
 
   renderProgrammes();
   renderCustomFields();
+  if (eventConfig?._stdCfg) applyStdConfig(eventConfig._stdCfg);
 }
 
 function renderCustomFields() {

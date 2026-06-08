@@ -445,12 +445,25 @@
         <div class="card" style="padding:24px">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
             <div>
-              <div style="font-size:16px;font-weight:800;margin-bottom:4px">Custom Questions</div>
-              <div style="font-size:13px;color:#64748b">Add extra questions to this event's registration form. Bilingual EN / 中文 supported.</div>
+              <div style="font-size:16px;font-weight:800;margin-bottom:4px">Form Builder</div>
+              <div style="font-size:13px;color:#64748b">Configure standard fields and add custom questions. Changes apply to this event's booking form.</div>
             </div>
-            <div style="display:flex;gap:10px">
+            <button class="btn-sm btn-green" id="save-builder-btn" onclick="saveFormBuilder()">Save Changes</button>
+          </div>
+
+          <!-- Standard Fields -->
+          <div style="font-size:13px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Standard Fields</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:14px">Toggle fields on/off and rename labels for this event.</div>
+          <div id="std-fields-list"></div>
+
+          <!-- Custom Questions -->
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:0.5px">Custom Questions</div>
+                <div style="font-size:12px;color:#64748b;margin-top:3px">Extra questions on top of the standard fields above.</div>
+              </div>
               <button class="btn-sm btn-outline" onclick="addBuilderQuestion()">+ Add Question</button>
-              <button class="btn-sm btn-green" id="save-builder-btn" onclick="saveFormBuilder()">Save Changes</button>
             </div>
           </div>
           <div id="standalone-builder-list"></div>
@@ -640,6 +653,18 @@ const CONFIG = {
   n8nDomain:   'n8n.okahh.com',
   bookingBase: 'https://openday.smartflowhk.com/book.html',
 };
+
+const STD_FIELDS = [
+  { key:'firstName',    label_en:'First Name',                    label_zh:'名字',          required:true,  lockRequired:true,  lockEnabled:true  },
+  { key:'lastName',     label_en:'Last Name',                     label_zh:'姓氏',          required:true,  lockRequired:true,  lockEnabled:true  },
+  { key:'email',        label_en:'Email Address',                 label_zh:'電郵地址',      required:true,  lockRequired:true,  lockEnabled:true  },
+  { key:'phone',        label_en:'WhatsApp / Phone',              label_zh:'WhatsApp / 電話', required:true, lockRequired:false, lockEnabled:false },
+  { key:'childName',    label_en:"Child's Name",                  label_zh:'子女姓名',      required:true,  lockRequired:false, lockEnabled:false },
+  { key:'childAge',     label_en:"Child's Age",                   label_zh:'子女年齡',      required:true,  lockRequired:false, lockEnabled:false },
+  { key:'programme',    label_en:'Programme of Interest',         label_zh:'感興趣課程',    required:true,  lockRequired:false, lockEnabled:false },
+  { key:'howDidYouHear',label_en:'How did you hear about us?',    label_zh:'如何得知我們？', required:false, lockRequired:false, lockEnabled:false },
+  { key:'langPref',     label_en:'Preferred Language for Emails', label_zh:'電郵語言偏好',  required:false, lockRequired:false, lockEnabled:false },
+];
 // ================================================================
 
 const state = {
@@ -650,11 +675,31 @@ const state = {
   editingEventId: null,
   programmes:     [],
   formQuestions:  [],
+  stdConfig:      {},
   activeTab:      'regs',
   templates:      null,
   activeTemplate: 'confirmation',
   schoolSettings: {},
 };
+
+function parseFormFieldsData(raw) {
+  try {
+    const parsed = JSON.parse(raw || '{}');
+    if (Array.isArray(parsed)) return { _std: {}, _custom: parsed };
+    return { _std: parsed._std || {}, _custom: parsed._custom || [] };
+  } catch { return { _std: {}, _custom: [] }; }
+}
+
+function getStdField(key) {
+  const def = STD_FIELDS.find(f => f.key === key) || {};
+  const cfg = state.stdConfig[key] || {};
+  return {
+    enabled:   cfg.enabled  !== undefined ? cfg.enabled  : true,
+    required:  cfg.required !== undefined ? cfg.required : (def.required || false),
+    label_en:  cfg.label_en || def.label_en || key,
+    label_zh:  cfg.label_zh || def.label_zh || key,
+  };
+}
 
 // ── API ──────────────────────────────────────────────────────────
 async function api(method, endpoint, body) {
@@ -768,7 +813,9 @@ async function viewEvent(eventId) {
   if (!ev) return;
   state.selectedEvent = ev;
   state.regs = [];
-  try { state.formQuestions = JSON.parse(ev.form_fields || '[]'); } catch { state.formQuestions = []; }
+  const ffd = parseFormFieldsData(ev.form_fields);
+  state.stdConfig    = ffd._std;
+  state.formQuestions = ffd._custom;
   state.activeTab = 'regs';
   showView('event');
   await loadRegistrations();
@@ -959,7 +1006,9 @@ function openEditEventModal() {
   document.getElementById('evt-capacity').value = ev.capacity || '';
   document.getElementById('evt-admin-email').value = ev.admin_email || '';
   document.getElementById('evt-description').value = ev.event_description || '';
-  try { state.formQuestions = JSON.parse(ev.form_fields || '[]'); } catch { state.formQuestions = []; }
+  const ffd2 = parseFormFieldsData(ev.form_fields);
+  state.stdConfig     = ffd2._std;
+  state.formQuestions = ffd2._custom;
   renderTags();
   renderFormQuestions();
   document.getElementById('event-modal').classList.add('open');
@@ -1318,7 +1367,51 @@ async function remindAll() {
 }
 
 // ── STANDALONE FORM BUILDER ──────────────────────────────────────
+function updateStdField(key, prop, value) {
+  if (!state.stdConfig[key]) state.stdConfig[key] = {};
+  state.stdConfig[key][prop] = value;
+}
+
+function renderStandardFields() {
+  const el = document.getElementById('std-fields-list');
+  if (!el) return;
+  el.innerHTML = STD_FIELDS.map(def => {
+    const cfg = state.stdConfig[def.key] || {};
+    const enabled  = cfg.enabled  !== undefined ? cfg.enabled  : true;
+    const required = cfg.required !== undefined ? cfg.required : def.required;
+    const label_en = cfg.label_en !== undefined ? cfg.label_en : def.label_en;
+    const label_zh = cfg.label_zh !== undefined ? cfg.label_zh : def.label_zh;
+    return `
+    <div class="fbuilder-question" style="opacity:${enabled ? 1 : 0.5}">
+      <div class="fbuilder-header">
+        <span style="font-size:13px;font-weight:700;color:#374151">${def.label_en}</span>
+        <div style="display:flex;gap:12px;align-items:center">
+          ${!def.lockRequired ? `
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;cursor:pointer">
+            <input type="checkbox" ${required?'checked':''} onchange="updateStdField('${def.key}','required',this.checked)" style="accent-color:#2e7d32;width:14px;height:14px"> Required
+          </label>` : `<span style="font-size:11px;color:#94a3b8;font-weight:600">Always required</span>`}
+          ${!def.lockEnabled ? `
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;cursor:pointer">
+            <input type="checkbox" ${enabled?'checked':''} onchange="updateStdField('${def.key}','enabled',this.checked)" style="accent-color:#2e7d32;width:14px;height:14px"> Show
+          </label>` : `<span style="font-size:11px;color:#94a3b8;font-weight:600">Always shown</span>`}
+        </div>
+      </div>
+      <div class="fq-grid" style="margin-top:8px">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">English Label</label>
+          <input class="form-input" type="text" value="${esc(label_en)}" oninput="updateStdField('${def.key}','label_en',this.value)" style="font-size:13px;padding:9px 11px">
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">中文標籤</label>
+          <input class="form-input" type="text" value="${esc(label_zh)}" oninput="updateStdField('${def.key}','label_zh',this.value)" style="font-size:13px;padding:9px 11px">
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderBuilderStandalone() {
+  renderStandardFields();
   const list = document.getElementById('standalone-builder-list');
   if (!list) return;
   if (!state.formQuestions.length) {
@@ -1434,7 +1527,7 @@ async function saveFormBuilder() {
     event_id: state.selectedEvent.event_id,
     school_id: state.school.school_id,
     password: state.school.password,
-    form_fields: JSON.stringify(state.formQuestions)
+    form_fields: JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions })
   });
   btn.disabled = false; btn.textContent = 'Save Changes';
   if (res.success || res.cors === false) {
