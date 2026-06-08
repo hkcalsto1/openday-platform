@@ -597,22 +597,6 @@
         <label class="form-label">Venue <span class="required-star">*</span></label>
         <input class="form-input" type="text" id="evt-venue" placeholder="e.g. Main Campus — 123 Discovery Bay Road, Lantau Island">
       </div>
-      <div class="full form-field">
-        <label class="form-label">Programmes <span class="required-star">*</span>
-          <span style="font-weight:400;color:#94a3b8;font-size:12px;margin-left:6px">Type and press Enter to add</span>
-        </label>
-        <div class="tag-input-wrap" id="prog-tag-wrap" onclick="document.getElementById('prog-tag-input').focus()">
-          <input class="tag-text-input" id="prog-tag-input" placeholder="Add programme…"
-            onkeydown="handleTagKey(event)" oninput="this.size = Math.max(this.value.length || 12, 12)">
-        </div>
-        <div class="tag-suggestions">
-          <button class="tag-suggestion" type="button" onclick="addTag('Early Years')">+ Early Years</button>
-          <button class="tag-suggestion" type="button" onclick="addTag('Primary')">+ Primary</button>
-          <button class="tag-suggestion" type="button" onclick="addTag('Secondary')">+ Secondary</button>
-          <button class="tag-suggestion" type="button" onclick="addTag('Kindergarten')">+ Kindergarten</button>
-          <button class="tag-suggestion" type="button" onclick="addTag('Nursery')">+ Nursery</button>
-        </div>
-      </div>
       <div class="form-field">
         <label class="form-label">Capacity <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
         <input class="form-input" type="number" id="evt-capacity" placeholder="e.g. 100" min="1">
@@ -655,15 +639,14 @@ const CONFIG = {
 };
 
 const STD_FIELDS = [
-  { key:'firstName',    label_en:'First Name',                    label_zh:'名字',          required:true,  lockRequired:true,  lockEnabled:true  },
-  { key:'lastName',     label_en:'Last Name',                     label_zh:'姓氏',          required:true,  lockRequired:true,  lockEnabled:true  },
-  { key:'email',        label_en:'Email Address',                 label_zh:'電郵地址',      required:true,  lockRequired:true,  lockEnabled:true  },
-  { key:'phone',        label_en:'WhatsApp / Phone',              label_zh:'WhatsApp / 電話', required:true, lockRequired:false, lockEnabled:false },
-  { key:'childName',    label_en:"Child's Name",                  label_zh:'子女姓名',      required:true,  lockRequired:false, lockEnabled:false },
-  { key:'childAge',     label_en:"Child's Age",                   label_zh:'子女年齡',      required:true,  lockRequired:false, lockEnabled:false },
-  { key:'programme',    label_en:'Programme of Interest',         label_zh:'感興趣課程',    required:true,  lockRequired:false, lockEnabled:false },
-  { key:'howDidYouHear',label_en:'How did you hear about us?',    label_zh:'如何得知我們？', required:false, lockRequired:false, lockEnabled:false },
-  { key:'langPref',     label_en:'Preferred Language for Emails', label_zh:'電郵語言偏好',  required:false, lockRequired:false, lockEnabled:false },
+  { key:'firstName', label_en:'First Name',                    label_zh:'名字',            required:true,  lockRequired:true,  lockEnabled:true  },
+  { key:'lastName',  label_en:'Last Name',                     label_zh:'姓氏',            required:true,  lockRequired:true,  lockEnabled:true  },
+  { key:'email',     label_en:'Email Address',                 label_zh:'電郵地址',        required:true,  lockRequired:true,  lockEnabled:true  },
+  { key:'phone',     label_en:'WhatsApp / Phone',              label_zh:'WhatsApp / 電話', required:true,  lockRequired:false, lockEnabled:false },
+  { key:'childName', label_en:"Child's Name",                  label_zh:'子女姓名',        required:true,  lockRequired:false, lockEnabled:false },
+  { key:'childAge',  label_en:"Child's Age",                   label_zh:'子女年齡',        required:true,  lockRequired:false, lockEnabled:false },
+  { key:'programme', label_en:'Programme of Interest',         label_zh:'感興趣課程',      required:true,  lockRequired:false, lockEnabled:false },
+  { key:'langPref',  label_en:'Preferred Language for Emails', label_zh:'電郵語言偏好',    required:false, lockRequired:false, lockEnabled:false },
 ];
 // ================================================================
 
@@ -814,8 +797,9 @@ async function viewEvent(eventId) {
   state.selectedEvent = ev;
   state.regs = [];
   const ffd = parseFormFieldsData(ev.form_fields);
-  state.stdConfig    = ffd._std;
+  state.stdConfig     = ffd._std;
   state.formQuestions = ffd._custom;
+  state.programmes    = (ev.programmes || 'Early Years,Primary,Secondary').split(',').map(p => p.trim()).filter(Boolean);
   state.activeTab = 'regs';
   showView('event');
   await loadRegistrations();
@@ -977,6 +961,7 @@ function switchTab(tab) {
 function openCreateEventModal() {
   state.editingEventId = null;
   state.programmes = ['Early Years', 'Primary', 'Secondary'];
+  state.stdConfig = {};
   document.getElementById('modal-title').textContent = 'New Event';
   document.getElementById('evt-name').value = '';
   document.getElementById('evt-date').value = '';
@@ -1022,7 +1007,8 @@ async function saveEvent() {
   const start = document.getElementById('evt-start').value;
   const end = document.getElementById('evt-end').value;
   const venue = document.getElementById('evt-venue').value.trim();
-  if (!name || !date || !start || !end || !venue || !state.programmes.length) {
+  if (!state.programmes.length) state.programmes = ['Early Years', 'Primary', 'Secondary'];
+  if (!name || !date || !start || !end || !venue) {
     toast('Please fill in all required fields.'); return;
   }
   const btn = document.getElementById('save-event-btn');
@@ -1041,7 +1027,7 @@ async function saveEvent() {
     programmes:       state.programmes.join(','),
     capacity:          document.getElementById('evt-capacity').value || '',
     admin_email:       document.getElementById('evt-admin-email').value.trim() || state.school.admin_email,
-    form_fields:       JSON.stringify(state.formQuestions),
+    form_fields:       JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions }),
     event_description: document.getElementById('evt-description').value.trim(),
   };
   let res;
@@ -1381,6 +1367,21 @@ function renderStandardFields() {
     const required = cfg.required !== undefined ? cfg.required : def.required;
     const label_en = cfg.label_en !== undefined ? cfg.label_en : def.label_en;
     const label_zh = cfg.label_zh !== undefined ? cfg.label_zh : def.label_zh;
+    const progSection = def.key === 'programme' && enabled ? `
+      <div style="margin-top:10px">
+        <label class="form-label" style="font-size:12px">Programme Options <span style="font-weight:400;color:#94a3b8">— type and press Enter</span></label>
+        <div class="tag-input-wrap" id="prog-tag-wrap" onclick="document.getElementById('prog-tag-input').focus()">
+          <input class="tag-text-input" id="prog-tag-input" placeholder="Add programme…"
+            onkeydown="handleTagKey(event)" oninput="this.size = Math.max(this.value.length || 12, 12)">
+        </div>
+        <div class="tag-suggestions">
+          <button class="tag-suggestion" type="button" onclick="addTag('Early Years')">+ Early Years</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Primary')">+ Primary</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Secondary')">+ Secondary</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Kindergarten')">+ Kindergarten</button>
+          <button class="tag-suggestion" type="button" onclick="addTag('Nursery')">+ Nursery</button>
+        </div>
+      </div>` : '';
     return `
     <div class="fbuilder-question" style="opacity:${enabled ? 1 : 0.5}">
       <div class="fbuilder-header">
@@ -1392,7 +1393,7 @@ function renderStandardFields() {
           </label>` : `<span style="font-size:11px;color:#94a3b8;font-weight:600">Always required</span>`}
           ${!def.lockEnabled ? `
           <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;cursor:pointer">
-            <input type="checkbox" ${enabled?'checked':''} onchange="updateStdField('${def.key}','enabled',this.checked)" style="accent-color:#2e7d32;width:14px;height:14px"> Show
+            <input type="checkbox" ${enabled?'checked':''} onchange="updateStdField('${def.key}','enabled',this.checked);renderStandardFields();" style="accent-color:#2e7d32;width:14px;height:14px"> Show
           </label>` : `<span style="font-size:11px;color:#94a3b8;font-weight:600">Always shown</span>`}
         </div>
       </div>
@@ -1406,8 +1407,11 @@ function renderStandardFields() {
           <input class="form-input" type="text" value="${esc(label_zh)}" oninput="updateStdField('${def.key}','label_zh',this.value)" style="font-size:13px;padding:9px 11px">
         </div>
       </div>
+      ${progSection}
     </div>`;
   }).join('');
+  // Render programme tags after HTML is injected
+  if (document.getElementById('prog-tag-wrap')) renderTags();
 }
 
 function renderBuilderStandalone() {
@@ -1524,9 +1528,10 @@ async function saveFormBuilder() {
   const btn = document.getElementById('save-builder-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   const res = await api('POST', 'openday-update-event', {
-    event_id: state.selectedEvent.event_id,
-    school_id: state.school.school_id,
-    password: state.school.password,
+    event_id:   state.selectedEvent.event_id,
+    school_id:  state.school.school_id,
+    password:   state.school.password,
+    programmes: state.programmes.join(','),
     form_fields: JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions })
   });
   btn.disabled = false; btn.textContent = 'Save Changes';

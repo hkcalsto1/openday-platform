@@ -361,19 +361,6 @@
     <div class="step-panel" id="step-panel-3">
       <div class="card">
         <div class="section-title" id="sec-final">One More Thing</div>
-        <div class="field" id="wrap-howDidYouHear">
-          <label for="howDidYouHear"><span id="lbl-hear">How did you hear about us?</span></label>
-          <select id="howDidYouHear">
-            <option value="" id="h-ph">— Select / 請選擇 —</option>
-            <option value="School website" id="h-web">School website</option>
-            <option value="Social media" id="h-social">Social media</option>
-            <option value="Friend or family" id="h-friend">Friend or family</option>
-            <option value="School fair" id="h-fair">School fair / expo</option>
-            <option value="Google search" id="h-google">Google search</option>
-            <option value="Email or newsletter" id="h-email">Email or newsletter</option>
-            <option value="Other" id="h-other">Other</option>
-          </select>
-        </div>
         <div class="field" id="wrap-langPref">
           <label id="lbl-lp">Preferred Language for Emails</label>
           <div class="langpref-grid">
@@ -460,7 +447,6 @@ const STD_DEFAULTS = {
   childName:     { label_en:"Child's Name",                  label_zh:'子女姓名',        required:true,  enabled:true },
   childAge:      { label_en:"Child's Age",                   label_zh:'子女年齡',        required:true,  enabled:true },
   programme:     { label_en:'Programme of Interest',         label_zh:'感興趣課程',      required:true,  enabled:true },
-  howDidYouHear: { label_en:'How did you hear about us?',    label_zh:'如何得知我們？',  required:false, enabled:true },
   langPref:      { label_en:'Preferred Language for Emails', label_zh:'電郵語言偏好',    required:false, enabled:true },
 };
 
@@ -502,7 +488,6 @@ function applyStdConfig(cfg) {
   applyField('phone',         'lbl-ph',   'wrap-phone',         true);
   applyField('childName',     'lbl-cn',   'wrap-childName',     true);
   applyField('childAge',      'lbl-ca',   'wrap-childAge',      true);
-  applyField('howDidYouHear', 'lbl-hear', 'wrap-howDidYouHear', false);
   applyField('langPref',      'lbl-lp',   'wrap-langPref',      false);
 
   // Programme: hide entire field if disabled, also update label
@@ -669,9 +654,6 @@ const T = {
     fn: 'First Name', ln: 'Last Name', em: 'Email Address', ph: 'WhatsApp / Phone',
     cn: "Child's Name", ca: "Child's Age", agePh: 'Select age range',
     prog: 'Programme of Interest',
-    hear: 'How did you hear about us?',
-    hWeb: 'School website', hSocial: 'Social media', hFriend: 'Friend or family',
-    hFair: 'School fair / expo', hGoogle: 'Google search', hEmail: 'Email or newsletter', hOther: 'Other',
     lp: 'Preferred Language for Emails',
     lpEnSub: 'Confirmation in English', lpZhSub: '以繁體中文確認',
     submit: 'Register Now →',
@@ -701,9 +683,6 @@ const T = {
     fn: '名字', ln: '姓氏', em: '電郵地址', ph: 'WhatsApp / 電話',
     cn: '孩子姓名', ca: '孩子年齡', agePh: '請選擇年齡範圍',
     prog: '感興趣的課程',
-    hear: '您如何得知我們的開放日？',
-    hWeb: '學校網站', hSocial: '社交媒體', hFriend: '親友介紹',
-    hFair: '教育展覽', hGoogle: 'Google搜尋', hEmail: '電郵或通訊', hOther: '其他',
     lp: '希望以哪種語言收取確認電郵',
     lpEnSub: '以英文確認', lpZhSub: '以繁體中文確認',
     submit: '立即報名 →',
@@ -766,14 +745,6 @@ function setLang(l) {
   const ageVals = ['', '2–3', '4–5', '6–8', '9–11', '12–14', '15–18'];
   Array.from(ageSelect.options).forEach((opt, i) => { opt.textContent = t.ages[i] || opt.textContent; });
   document.getElementById('lbl-prog').innerHTML = t.prog + ' <span class="required">*</span>';
-  document.getElementById('lbl-hear').textContent = t.hear;
-  document.getElementById('h-web').textContent    = t.hWeb;
-  document.getElementById('h-social').textContent = t.hSocial;
-  document.getElementById('h-friend').textContent = t.hFriend;
-  document.getElementById('h-fair').textContent   = t.hFair;
-  document.getElementById('h-google').textContent = t.hGoogle;
-  document.getElementById('h-email').textContent  = t.hEmail;
-  document.getElementById('h-other').textContent  = t.hOther;
   document.getElementById('lbl-lp').textContent   = t.lp;
   document.getElementById('lp-en-sub').textContent = t.lpEnSub;
   document.getElementById('lp-zh-sub').textContent = t.lpZhSub;
@@ -956,7 +927,6 @@ document.getElementById('reg-form').addEventListener('submit', async e => {
     childName:     document.getElementById('childName').value.trim(),
     childAge:      document.getElementById('childAge').value,
     programme:     selectedProg,
-    howDidYouHear: document.getElementById('howDidYouHear').value,
     registrationId: regId,
     source: 'openday-booking-form',
     custom_answers: JSON.stringify(Object.fromEntries(
