@@ -474,6 +474,20 @@
               <button class="btn-sm btn-green" id="save-builder-btn" onclick="saveFormBuilder()">Save Form</button>
             </div>
 
+            <!-- Form Header Message -->
+            <div class="builder-section-label">Form Header Message</div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:10px">Optional intro text shown at the top of the booking form, before any fields.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#64748b;display:block;margin-bottom:5px">English</label>
+                <textarea id="bld-header-en" class="form-input" rows="3" style="font-size:13px;padding:9px 11px;resize:vertical" placeholder="e.g. Welcome! Please complete the form below to register for our Open Day." oninput="updateFormHeader('en',this.value)"></textarea>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#64748b;display:block;margin-bottom:5px">中文</label>
+                <textarea id="bld-header-zh" class="form-input" rows="3" style="font-size:13px;padding:9px 11px;resize:vertical" placeholder="例：歡迎！請填寫以下表格以報名參加開放日。" oninput="updateFormHeader('zh',this.value)"></textarea>
+              </div>
+            </div>
+
             <!-- Standard Fields -->
             <div class="builder-section-label">Standard Fields</div>
             <div style="font-size:12px;color:#64748b;margin-bottom:14px">Toggle fields and rename labels. Always-on fields can't be hidden.</div>
@@ -481,11 +495,14 @@
 
             <!-- Custom Questions -->
             <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
                 <div class="builder-section-label" style="margin-bottom:0;padding-bottom:0;border-bottom:none">Custom Questions</div>
-                <button class="btn-sm btn-outline" onclick="addBuilderQuestion()" style="font-size:12px;padding:5px 12px">+ Add Question</button>
+                <div style="display:flex;gap:8px">
+                  <button class="btn-sm btn-outline" onclick="addBuilderTextBlock()" style="font-size:12px;padding:5px 12px;color:#0369a1;border-color:#bae6fd">+ Text Block</button>
+                  <button class="btn-sm btn-outline" onclick="addBuilderQuestion()" style="font-size:12px;padding:5px 12px">+ Add Question</button>
+                </div>
               </div>
-              <div style="font-size:12px;color:#64748b;margin-bottom:12px">Extra questions shown after the standard fields above.</div>
+              <div style="font-size:12px;color:#64748b;margin-bottom:12px">Add questions or text blocks between fields. Text blocks are great for instructions or section headings.</div>
               <div id="standalone-builder-list"></div>
             </div>
           </div>
@@ -674,6 +691,7 @@ const state = {
   programmes:     [],
   formQuestions:  [],
   stdConfig:      {},
+  formHeader:     { en: '', zh: '' },
   activeTab:      'regs',
   templates:      null,
   activeTemplate: 'confirmation',
@@ -683,9 +701,9 @@ const state = {
 function parseFormFieldsData(raw) {
   try {
     const parsed = JSON.parse(raw || '{}');
-    if (Array.isArray(parsed)) return { _std: {}, _custom: parsed };
-    return { _std: parsed._std || {}, _custom: parsed._custom || [] };
-  } catch { return { _std: {}, _custom: [] }; }
+    if (Array.isArray(parsed)) return { _std: {}, _custom: parsed, _header: { en: '', zh: '' } };
+    return { _std: parsed._std || {}, _custom: parsed._custom || [], _header: parsed._header || { en: '', zh: '' } };
+  } catch { return { _std: {}, _custom: [], _header: { en: '', zh: '' } }; }
 }
 
 function getStdField(key) {
@@ -815,6 +833,7 @@ function duplicateEvent(eventId) {
   const ffd = parseFormFieldsData(ev.form_fields);
   state.stdConfig     = ffd._std;
   state.formQuestions = ffd._custom;
+  state.formHeader    = { ...ffd._header };
   document.getElementById('modal-title').textContent = 'New Event (Copy)';
   document.getElementById('evt-name').value         = 'Copy of ' + (ev.event_name || '');
   document.getElementById('evt-date').value         = '';
@@ -835,6 +854,7 @@ async function viewEvent(eventId) {
   const ffd = parseFormFieldsData(ev.form_fields);
   state.stdConfig     = ffd._std;
   state.formQuestions = ffd._custom;
+  state.formHeader    = ffd._header;
   state.programmes    = (ev.programmes || 'Early Years,Primary,Secondary').split(',').map(p => p.trim()).filter(Boolean);
   state.activeTab = 'regs';
   showView('event');
@@ -1008,6 +1028,7 @@ function openCreateEventModal() {
   document.getElementById('evt-admin-email').value = state.school?.admin_email || '';
   document.getElementById('evt-description').value = '';
   state.formQuestions = [];
+  state.formHeader    = { en: '', zh: '' };
   renderTags();
   document.getElementById('event-modal').classList.add('open');
 }
@@ -1029,6 +1050,7 @@ function openEditEventModal() {
   const ffd2 = parseFormFieldsData(ev.form_fields);
   state.stdConfig     = ffd2._std;
   state.formQuestions = ffd2._custom;
+  state.formHeader    = ffd2._header;
   renderTags();
   document.getElementById('event-modal').classList.add('open');
 }
@@ -1061,7 +1083,7 @@ async function saveEvent() {
     programmes:       state.programmes.join(','),
     capacity:          document.getElementById('evt-capacity').value || '',
     admin_email:       document.getElementById('evt-admin-email').value.trim() || state.school.admin_email,
-    form_fields:       JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions }),
+    form_fields:       JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions, _header: state.formHeader }),
     event_description: document.getElementById('evt-description').value.trim(),
   };
   let res;
@@ -1194,15 +1216,37 @@ function toast(msg, green = false) {
 
 // ── FORM BUILDER ─────────────────────────────────────────────────
 function renderBuilderTab() {
+  // Populate header message textareas
+  const enEl = document.getElementById('bld-header-en');
+  const zhEl = document.getElementById('bld-header-zh');
+  if (enEl) enEl.value = state.formHeader?.en || '';
+  if (zhEl) zhEl.value = state.formHeader?.zh || '';
   renderStandardFields();
   renderBuilderStandalone();
   renderFormPreview();
+}
+
+function updateFormHeader(lang, value) {
+  if (!state.formHeader) state.formHeader = { en: '', zh: '' };
+  state.formHeader[lang] = value;
+  renderFormPreview();
+}
+
+function addBuilderTextBlock() {
+  state.formQuestions.push({ id: 'q_' + Date.now(), type: 'info', text_en: '', text_zh: '' });
+  renderBuilderStandalone();
 }
 
 function renderFormPreview() {
   const container = document.getElementById('form-preview-container');
   if (!container) return;
   let html = '';
+
+  // Form header message
+  const headerEn = state.formHeader?.en || '';
+  if (headerEn) {
+    html += `<div style="padding:12px 14px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;font-size:13px;color:#0369a1;line-height:1.5;margin-bottom:16px">${esc(headerEn)}</div>`;
+  }
 
   // Standard fields (enabled ones only, in definition order)
   let stdCount = 0;
@@ -1556,7 +1600,7 @@ async function saveFormBuilder() {
     school_id:  state.school.school_id,
     password:   state.school.password,
     programmes: state.programmes.join(','),
-    form_fields: JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions })
+    form_fields: JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions, _header: state.formHeader })
   });
   btn.disabled = false; btn.textContent = 'Save Changes';
   if (res.success || res.cors === false) {

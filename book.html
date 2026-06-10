@@ -268,6 +268,11 @@
     <p id="event-desc-text" style="font-size:15px;line-height:1.7;color:#374151"></p>
   </div>
 
+  <!-- Form Header Message (from form builder) -->
+  <div id="form-header-card" style="display:none;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:14px;padding:16px 20px;margin-bottom:4px">
+    <p id="form-header-text" style="font-size:14px;line-height:1.7;color:#0369a1;margin:0"></p>
+  </div>
+
 
 
   <!-- Step Progress Bar -->
@@ -534,12 +539,20 @@ function applyEventConfig(data) {
     en: p, zh: progNamesZh[p] || p,
     ageEn: progAgesEn[p] || '', ageZh: progAgesZh[p] || '',
   }));
-  // Parse form_fields — supports old array format and new {_std, _custom} format
+  // Parse form_fields — supports old array format and new {_std, _custom, _header} format
   let _parsedFF = {};
   try { _parsedFF = JSON.parse(data.form_fields || '{}'); } catch {}
-  if (Array.isArray(_parsedFF)) { customFields = _parsedFF; data._stdCfg = {}; }
-  else { customFields = _parsedFF._custom || []; data._stdCfg = _parsedFF._std || {}; }
+  if (Array.isArray(_parsedFF)) { customFields = _parsedFF; data._stdCfg = {}; data._formHeader = {}; }
+  else { customFields = _parsedFF._custom || []; data._stdCfg = _parsedFF._std || {}; data._formHeader = _parsedFF._header || {}; }
   applyStdConfig(data._stdCfg);
+  // Show form header message if set
+  const fhCard = document.getElementById('form-header-card');
+  const fhText = document.getElementById('form-header-text');
+  if (fhCard && fhText) {
+    const fhMsg = (lang === 'zh' && data._formHeader.zh) ? data._formHeader.zh : data._formHeader.en;
+    if (fhMsg) { fhText.textContent = fhMsg; fhCard.style.display = 'block'; }
+    else { fhCard.style.display = 'none'; }
+  }
   document.title = `${data.school_name} — Open Day Registration`;
   document.getElementById('reg-form-wrap').style.display = 'block';
   document.getElementById('loading-state').style.display = 'none';
@@ -766,6 +779,14 @@ function setLang(l) {
   renderProgrammes();
   renderCustomFields();
   if (eventConfig?._stdCfg) applyStdConfig(eventConfig._stdCfg);
+  // Update form header message for current language
+  const fhCard = document.getElementById('form-header-card');
+  const fhText = document.getElementById('form-header-text');
+  if (fhCard && fhText && eventConfig?._formHeader) {
+    const fhMsg = (isZh && eventConfig._formHeader.zh) ? eventConfig._formHeader.zh : eventConfig._formHeader.en;
+    if (fhMsg) { fhText.textContent = fhMsg; fhCard.style.display = 'block'; }
+    else { fhCard.style.display = 'none'; }
+  }
 }
 
 function renderCustomFields() {
