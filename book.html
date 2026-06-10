@@ -777,6 +777,10 @@ function renderCustomFields() {
     ${customFields.map(f => {
       const label = esc(isZh && f.label_zh ? f.label_zh : f.label_en);
       const req = f.required ? '<span class="required"> *</span>' : '';
+      if (f.type === 'info') {
+        const text = esc(isZh && f.text_zh ? f.text_zh : (f.text_en || ''));
+        return text ? `<div style="padding:12px 14px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;font-size:13px;color:#0369a1;line-height:1.5;margin-bottom:4px">${text}</div>` : '';
+      }
       if (f.type === 'dropdown') {
         const opts = isZh && f.options_zh && f.options_zh.length ? f.options_zh : (f.options_en || []);
         const enOpts = f.options_en || [];
@@ -849,6 +853,7 @@ function validate() {
   const t = T[lang]; let ok = true;
   // Step 3 custom fields only — steps 1+2 already validated on Next
   customFields.forEach(f => {
+    if (f.type === 'info') return;
     if (f.required) {
       if (f.type === 'checkbox') {
         const checked = document.querySelectorAll(`input[name="cf_${f.id}"]:checked`).length;
@@ -930,7 +935,7 @@ document.getElementById('reg-form').addEventListener('submit', async e => {
     registrationId: regId,
     source: 'openday-booking-form',
     custom_answers: JSON.stringify(Object.fromEntries(
-      customFields.map(f => {
+      customFields.filter(f => f.type !== 'info').map(f => {
         if (f.type === 'checkbox') {
           const checked = Array.from(document.querySelectorAll(`input[name="cf_${f.id}"]:checked`)).map(cb => cb.value);
           return [f.id, checked.join(', ')];

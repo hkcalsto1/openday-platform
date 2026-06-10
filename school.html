@@ -1428,13 +1428,24 @@ function renderBuilderStandalone() {
     <div class="fbuilder-question" id="bq-${q.id}">
       <div class="fbuilder-header">
         <span class="drag-handle" title="Drag to reorder">⠿</span>
-        <span class="fbuilder-num">Question ${i + 1}</span>
+        <span class="fbuilder-num">${q.type === 'info' ? 'Info Block ' + (i + 1) : 'Question ' + (i + 1)}</span>
         <div style="display:flex;gap:8px">
           <button type="button" onclick="moveBQ(${i},-1)" style="background:none;border:1.5px solid #e2e8f0;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:13px;color:#64748b" ${i === 0 ? 'disabled' : ''}>↑</button>
           <button type="button" onclick="moveBQ(${i},1)" style="background:none;border:1.5px solid #e2e8f0;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:13px;color:#64748b" ${i === state.formQuestions.length - 1 ? 'disabled' : ''}>↓</button>
           <button type="button" class="fbuilder-remove" onclick="removeBQ('${q.id}')">✕ Remove</button>
         </div>
       </div>
+      ${q.type === 'info' ? `
+      <div class="fq-grid">
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">English Text</label>
+          <textarea class="form-input" rows="3" oninput="updateBQ('${q.id}','text_en',this.value)" placeholder="e.g. Please bring your child's birth certificate." style="font-size:13px;padding:9px 11px">${esc(q.text_en||'')}</textarea>
+        </div>
+        <div class="form-field" style="margin:0">
+          <label class="form-label" style="font-size:12px">中文文字</label>
+          <textarea class="form-input" rows="3" oninput="updateBQ('${q.id}','text_zh',this.value)" placeholder="例：請攜帶子女的出生證明書。" style="font-size:13px;padding:9px 11px">${esc(q.text_zh||'')}</textarea>
+        </div>
+      </div>` : `
       <div class="fq-grid">
         <div class="form-field" style="margin:0">
           <label class="form-label" style="font-size:12px">English Label <span class="required-star">*</span></label>
@@ -1444,7 +1455,7 @@ function renderBuilderStandalone() {
           <label class="form-label" style="font-size:12px">中文標籤</label>
           <input class="form-input" type="text" value="${esc(q.label_zh)}" oninput="updateBQ('${q.id}','label_zh',this.value)" placeholder="例：飲食需求" style="font-size:13px;padding:9px 11px">
         </div>
-      </div>
+      </div>`}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
         <div class="form-field" style="margin:0">
           <label class="form-label" style="font-size:12px">Field Type</label>
@@ -1452,12 +1463,14 @@ function renderBuilderStandalone() {
             <option value="text" ${q.type==='text'?'selected':''}>Short Text</option>
             <option value="dropdown" ${q.type==='dropdown'?'selected':''}>Dropdown (pick one)</option>
             <option value="checkbox" ${q.type==='checkbox'?'selected':''}>Checkboxes (pick many)</option>
+            <option value="info" ${q.type==='info'?'selected':''}>Info / Section Text</option>
           </select>
         </div>
+        ${q.type !== 'info' ? `
         <div style="display:flex;align-items:center;gap:8px;padding-top:22px">
           <input type="checkbox" id="bqr-${q.id}" ${q.required?'checked':''} onchange="updateBQ('${q.id}','required',this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:#2e7d32">
           <label for="bqr-${q.id}" style="font-size:13px;font-weight:600;cursor:pointer">Required</label>
-        </div>
+        </div>` : ''}
       </div>
       ${(q.type==='dropdown'||q.type==='checkbox')?`
       <div class="fq-opts-grid" style="margin-top:10px">
@@ -1512,6 +1525,10 @@ function renderBuilderPreview() {
   content.innerHTML = state.formQuestions.map(q => {
     const label = q.label_en || '(untitled)';
     const req = q.required ? ' <span style="color:#ef4444">*</span>' : '';
+    if (q.type === 'info') {
+      const text = q.text_en || '(no text set)';
+      return `<div style="margin-bottom:14px;padding:12px 14px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;font-size:13px;color:#0369a1;line-height:1.5">${esc(text)}</div>`;
+    }
     if (q.type === 'dropdown') {
       const opts = q.options_en.length ? q.options_en.map(o => `<option>${esc(o)}</option>`).join('') : '<option>Option 1</option>';
       return `<div style="margin-bottom:14px"><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">${esc(label)}${req}</label><select style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;background:white;color:#64748b"><option>— Select —</option>${opts}</select></div>`;
