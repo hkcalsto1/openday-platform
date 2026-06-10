@@ -748,7 +748,7 @@ function signOut() {
 function showView(v) {
   ['events', 'event'].forEach(id => document.getElementById(`view-${id}`).style.display = 'none');
   document.getElementById(`view-${v}`).style.display = 'block';
-  document.getElementById('nav-new-event-btn').style.display = v === 'events' ? 'inline-flex' : 'none';
+  document.getElementById('nav-new-event-btn').style.display = v === 'event' ? 'inline-flex' : 'none';
   if (v === 'events') renderEventCards();
   if (v === 'event') renderEventDetail();
 }
@@ -786,9 +786,31 @@ function renderEventCards() {
         <div class="event-card-actions" onclick="event.stopPropagation()">
           <button class="btn-sm btn-green" onclick="viewEvent('${ev.event_id}')">View →</button>
           <button class="btn-sm btn-outline" onclick="copyLink('${ev.event_id}')">Copy Link</button>
+          <button class="btn-sm btn-outline" onclick="duplicateEvent('${ev.event_id}')">Duplicate</button>
         </div>
       </div>`;
   }).join('');
+}
+
+function duplicateEvent(eventId) {
+  const ev = state.events.find(e => e.event_id === eventId);
+  if (!ev) return;
+  state.editingEventId = null;
+  state.programmes = (ev.programmes || 'Early Years,Primary,Secondary').split(',').map(p => p.trim()).filter(Boolean);
+  const ffd = parseFormFieldsData(ev.form_fields);
+  state.stdConfig     = ffd._std;
+  state.formQuestions = ffd._custom;
+  document.getElementById('modal-title').textContent = 'New Event (Copy)';
+  document.getElementById('evt-name').value         = 'Copy of ' + (ev.event_name || '');
+  document.getElementById('evt-date').value         = '';
+  document.getElementById('evt-start').value        = ev.event_time_start  || '10:00';
+  document.getElementById('evt-end').value          = ev.event_time_end    || '12:00';
+  document.getElementById('evt-venue').value        = ev.venue             || '';
+  document.getElementById('evt-capacity').value     = ev.capacity          || '';
+  document.getElementById('evt-admin-email').value  = ev.admin_email       || state.school?.admin_email || '';
+  document.getElementById('evt-description').value  = ev.event_description || '';
+  renderFormQuestions();
+  document.getElementById('event-modal').classList.add('open');
 }
 
 async function viewEvent(eventId) {
@@ -1074,6 +1096,7 @@ async function toggleEventStatus() {
 function renderTags() {
   const wrap = document.getElementById('prog-tag-wrap');
   const input = document.getElementById('prog-tag-input');
+  if (!wrap || !input) return;
   wrap.querySelectorAll('.tag').forEach(t => t.remove());
   state.programmes.forEach(p => {
     const tag = document.createElement('span');

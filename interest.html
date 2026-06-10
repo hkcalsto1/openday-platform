@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Express Interest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #eef2f7; color: #1a2332; min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #00796b 100%);
+      color: white; padding: 36px 20px 32px; text-align: center; position: relative;
+    }
+    .lang-toggle {
+      position: absolute; top: 16px; right: 16px;
+      display: flex; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 3px;
+    }
+    .lang-btn {
+      padding: 5px 14px; border-radius: 16px; border: none; background: transparent;
+      color: white; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .lang-btn.active { background: white; color: #2e7d32; }
+    .header-icon { font-size: 40px; margin-bottom: 10px; }
+    .school-name { font-size: 15px; font-weight: 600; opacity: 0.85; margin-bottom: 4px; }
+    .header h1   { font-size: 24px; font-weight: 800; }
+    .header p    { font-size: 14px; opacity: 0.85; margin-top: 6px; }
+
+    .container { max-width: 520px; margin: 28px auto 60px; padding: 0 16px; }
+
+    .card {
+      background: white; border-radius: 18px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.07); padding: 24px; margin-bottom: 14px;
+    }
+    .card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 16px; }
+
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .required { color: #ef4444; }
+
+    input[type="text"], input[type="email"], select, textarea {
+      width: 100%; padding: 11px 13px;
+      border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 14px; font-family: 'Inter', sans-serif; color: #1a2332;
+      transition: border-color 0.2s; background: white;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2e7d32; }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .interest-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .interest-opt {
+      padding: 14px 10px; border: 1.5px solid #e2e8f0; border-radius: 12px;
+      text-align: center; cursor: pointer; transition: all 0.15s; font-size: 13px; font-weight: 600;
+    }
+    .interest-opt .opt-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+    .interest-opt:hover { border-color: #2e7d32; background: #f0faf0; }
+    .interest-opt.selected { border-color: #2e7d32; background: #f0faf0; color: #2e7d32; }
+
+    .btn-submit {
+      width: 100%; padding: 16px; background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+      cursor: pointer; font-family: 'Inter', sans-serif; transition: opacity 0.2s;
+    }
+    .btn-submit:hover { opacity: 0.9; }
+    .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    .spinner {
+      width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .success-wrap { text-align: center; padding: 16px 0; }
+    .success-icon  { font-size: 64px; margin-bottom: 16px; }
+    .success-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .success-sub   { font-size: 15px; color: #64748b; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn"        id="btn-zh" onclick="setLang('zh')">中</button>
+  </div>
+  <div class="header-icon">🏫</div>
+  <div class="school-name" id="h-school"></div>
+  <h1 id="h-title">Express Your Interest</h1>
+  <p  id="h-sub">Let us know you'd like to learn more</p>
+</div>
+
+<div class="container">
+
+  <div id="form-wrap">
+    <div class="card">
+      <div class="card-title" id="ct-level">How interested are you?</div>
+      <div class="interest-options">
+        <div class="interest-opt" id="opt-high" onclick="selectInterest('high')">
+          <span class="opt-icon">🌟</span>
+          <span id="opt-high-label">Very Interested</span>
+        </div>
+        <div class="interest-opt" id="opt-mid" onclick="selectInterest('mid')">
+          <span class="opt-icon">🤔</span>
+          <span id="opt-mid-label">Considering</span>
+        </div>
+        <div class="interest-opt" id="opt-low" onclick="selectInterest('low')">
+          <span class="opt-icon">👀</span>
+          <span id="opt-low-label">Just Looking</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" id="ct-details">Details</div>
+      <div class="field">
+        <label for="inp-programme" id="lbl-programme">Programme of Interest <span class="required">*</span></label>
+        <select id="inp-programme">
+          <option value="" id="opt-select">— Select —</option>
+          <option value="Early Years">Early Years</option>
+          <option value="Primary">Primary</option>
+          <option value="Secondary">Secondary</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="inp-year" id="lbl-year">Preferred Year of Entry</label>
+        <select id="inp-year">
+          <option value="">— Select —</option>
+          <option value="2025-26">2025–26</option>
+          <option value="2026-27">2026–27</option>
+          <option value="2027-28">2027–28</option>
+          <option value="2028+">2028 or later</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="inp-message" id="lbl-message">Any questions or comments? <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+        <textarea id="inp-message" placeholder="e.g. We're interested in the bilingual programme and have twins starting school in 2026."></textarea>
+      </div>
+    </div>
+
+    <div id="err-banner" style="display:none;background:#fff1f2;border:1.5px solid #fecdd3;border-radius:12px;padding:14px 16px;color:#9f1239;font-size:13px;font-weight:600;margin-bottom:14px">
+      <span id="err-msg"></span>
+    </div>
+
+    <button class="btn-submit" id="btn-submit" onclick="doSubmit()">
+      <span id="btn-text">Send Interest →</span>
+    </button>
+  </div>
+
+  <div id="success-wrap" style="display:none">
+    <div class="card">
+      <div class="success-wrap">
+        <div class="success-icon">🎉</div>
+        <div class="success-title" id="ct-done-title">Thank you!</div>
+        <div class="success-sub" id="ct-done-sub">Your interest has been noted. The admissions team will be in touch with you soon.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const N8N    = 'https://n8n.okahh.com';
+const params = new URLSearchParams(location.search);
+const regId  = params.get('reg')   || '';
+const evId   = params.get('event') || '';
+let lang     = 'en';
+let interest = '';
+
+const T = {
+  en: {
+    hTitle: 'Express Your Interest', hSub: "Let us know you'd like to learn more",
+    ctLevel: 'How interested are you?',
+    optHigh: 'Very Interested', optMid: 'Considering', optLow: 'Just Looking',
+    ctDetails: 'Details',
+    lblProgramme: 'Programme of Interest', lblYear: 'Preferred Year of Entry',
+    lblMessage: 'Any questions or comments?',
+    btnSubmit: 'Send Interest →',
+    ctDoneTitle: 'Thank you!', ctDoneSub: 'Your interest has been noted. The admissions team will be in touch with you soon.',
+    errProgramme: 'Please select a programme.', errInterest: 'Please select an interest level.',
+    errFailed: 'Submission failed. Please try again.'
+  },
+  zh: {
+    hTitle: '表達入學意向', hSub: '讓我們知道您有興趣了解更多',
+    ctLevel: '您的興趣程度如何？',
+    optHigh: '非常感興趣', optMid: '正在考慮', optLow: '初步了解',
+    ctDetails: '詳細資料',
+    lblProgramme: '感興趣的課程', lblYear: '預計入學年度',
+    lblMessage: '有任何問題或意見嗎？',
+    btnSubmit: '提交意向 →',
+    ctDoneTitle: '感謝您！', ctDoneSub: '我們已收到您的意向。招生團隊將盡快與您聯絡。',
+    errProgramme: '請選擇課程。', errInterest: '請選擇興趣程度。',
+    errFailed: '提交失敗，請重試。'
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-en').className = 'lang-btn' + (l === 'en' ? ' active' : '');
+  document.getElementById('btn-zh').className = 'lang-btn' + (l === 'zh' ? ' active' : '');
+  applyLang();
+}
+
+function applyLang() {
+  const t = T[lang];
+  document.getElementById('h-title').textContent     = t.hTitle;
+  document.getElementById('h-sub').textContent       = t.hSub;
+  document.getElementById('ct-level').textContent    = t.ctLevel;
+  document.getElementById('opt-high-label').textContent = t.optHigh;
+  document.getElementById('opt-mid-label').textContent  = t.optMid;
+  document.getElementById('opt-low-label').textContent  = t.optLow;
+  document.getElementById('ct-details').textContent  = t.ctDetails;
+  document.getElementById('lbl-programme').innerHTML = t.lblProgramme + ' <span class="required">*</span>';
+  document.getElementById('lbl-year').textContent    = t.lblYear;
+  document.getElementById('lbl-message').innerHTML   = t.lblMessage + ' <span style="font-weight:400;color:#94a3b8">(optional)</span>';
+  document.getElementById('btn-text').textContent    = t.btnSubmit;
+  document.getElementById('ct-done-title').textContent = t.ctDoneTitle;
+  document.getElementById('ct-done-sub').textContent   = t.ctDoneSub;
+}
+
+function selectInterest(level) {
+  interest = level;
+  ['high','mid','low'].forEach(l => {
+    document.getElementById('opt-' + l).className = 'interest-opt' + (l === level ? ' selected' : '');
+  });
+}
+
+async function doSubmit() {
+  const t = T[lang];
+  const programme = document.getElementById('inp-programme').value;
+  const errEl = document.getElementById('err-banner');
+  const errMsg = document.getElementById('err-msg');
+  errEl.style.display = 'none';
+
+  if (!interest) { errMsg.textContent = t.errInterest; errEl.style.display = 'block'; return; }
+  if (!programme) { errMsg.textContent = t.errProgramme; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  document.getElementById('btn-text').innerHTML = '<span class="spinner"></span>';
+
+  const payload = {
+    registration_id: regId,
+    event_id:        evId,
+    interest_level:  interest,
+    programme,
+    entry_year:      document.getElementById('inp-year').value,
+    message:         document.getElementById('inp-message').value.trim(),
+    language:        lang
+  };
+
+  try {
+    const res = await fetch(`${N8N}/webhook/openday-interest`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const d = await res.json().catch(() => ({}));
+    if (d.success !== false) {
+      document.getElementById('form-wrap').style.display = 'none';
+      document.getElementById('success-wrap').style.display = 'block';
+      return;
+    }
+    throw new Error();
+  } catch {
+    errMsg.textContent = t.errFailed;
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false;
+  document.getElementById('btn-text').textContent = t.btnSubmit;
+}
+
+// Load event/school info for header
+async function loadHeader() {
+  if (!evId) return;
+  try {
+    const res = await fetch(`${N8N}/webhook/openday-event-info?id=${encodeURIComponent(evId)}`);
+    const d = await res.json();
+    if (d.school_name) document.getElementById('h-school').textContent = d.school_name;
+  } catch {}
+}
+
+loadHeader();
+</script>
+</body>
+</html>
