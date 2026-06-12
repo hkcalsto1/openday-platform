@@ -1004,6 +1004,10 @@ function switchTab(tab) {
     if (!confirm('You have unsaved template changes. Leave without saving?')) return;
     templatesDirty = false;
   }
+  if (state.activeTab === 'builder' && tab !== 'builder' && builderDirty) {
+    if (!confirm('You have unsaved form changes. Leave without saving?')) return;
+    builderDirty = false;
+  }
   state.activeTab = tab;
   ['regs','qr','builder','templates','details'].forEach(t => {
     document.getElementById(`tab-content-${t}`).style.display = t === tab ? 'block' : 'none';
@@ -1055,7 +1059,16 @@ function openEditEventModal() {
   document.getElementById('event-modal').classList.add('open');
 }
 
-function closeModal() { document.getElementById('event-modal').classList.remove('open'); }
+function closeModal() {
+  document.getElementById('event-modal').classList.remove('open');
+  if (state.selectedEvent) {
+    const ffd = parseFormFieldsData(state.selectedEvent.form_fields);
+    state.stdConfig     = ffd._std;
+    state.formQuestions = ffd._custom;
+    state.formHeader    = ffd._header;
+    state.programmes    = (state.selectedEvent.programmes || 'Early Years,Primary,Secondary').split(',').map(p => p.trim()).filter(Boolean);
+  }
+}
 
 async function saveEvent() {
   const name = document.getElementById('evt-name').value.trim();
@@ -1188,12 +1201,20 @@ function copyToClipboard(text, msg) {
 
 function exportCSV() {
   const ev = state.selectedEvent;
-  const headers = ['Registration ID','Parent Name','Email','Phone','Language','Child Name','Child Age','Programme','Status','Check-in Time','How Heard','Registered'];
-  const rows = state.regs.map(r => [
-    r.registration_id, r.parent_name, r.email, r.phone, r.language,
-    r.child_name, r.child_age, r.programme, r.attendance_status,
-    r.check_in_time || '', r.how_did_you_hear, r.registration_date
-  ].map(v => `"${String(v||'').replace(/"/g,'""')}"`));
+  const customQs = state.formQuestions.filter(q => q.type !== 'info');
+  const headers = ['Registration ID','Parent Name','Email','Phone','Language','Child Name','Child Age','Programme','Status','Check-in Time','How Heard','Registered',
+    ...customQs.map(q => q.label_en || q.id)];
+  const rows = state.regs.map(r => {
+    let ca = {};
+    try { ca = typeof r.custom_answers === 'string' ? JSON.parse(r.custom_answers || '{}') : (r.custom_answers || {}); } catch {}
+    const customVals = customQs.map(q => { const v = ca[q.id]; return Array.isArray(v) ? v.join('; ') : (v || ''); });
+    return [
+      r.registration_id, r.parent_name, r.email, r.phone, r.language,
+      r.child_name, r.child_age, r.programme, r.attendance_status,
+      r.check_in_time || '', r.how_did_you_hear, r.registration_date,
+      ...customVals
+    ].map(v => `"${String(v||'').replace(/"/g,'""')}"`);
+  });
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
@@ -1216,7 +1237,7 @@ function toast(msg, green = false) {
 
 // ── FORM BUILDER ─────────────────────────────────────────────────
 function renderBuilderTab() {
-  // Populate header message textareas
+  builderDirty = false;
   const enEl = document.getElementById('bld-header-en');
   const zhEl = document.getElementById('bld-header-zh');
   if (enEl) enEl.value = state.formHeader?.en || '';
@@ -1229,11 +1250,13 @@ function renderBuilderTab() {
 function updateFormHeader(lang, value) {
   if (!state.formHeader) state.formHeader = { en: '', zh: '' };
   state.formHeader[lang] = value;
+  builderDirty = true;
   renderFormPreview();
 }
 
 function addBuilderTextBlock() {
   state.formQuestions.push({ id: 'q_' + Date.now(), type: 'info', text_en: '', text_zh: '' });
+  builderDirty = true;
   renderBuilderStandalone();
 }
 
@@ -1244,8 +1267,13 @@ function renderFormPreview() {
 
   // Form header message
   const headerEn = state.formHeader?.en || '';
-  if (headerEn) {
-    html += `<div style="padding:12px 14px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;font-size:13px;color:#0369a1;line-height:1.5;margin-bottom:16px">${esc(headerEn)}</div>`;
+  const headerZh = state.formHeader?.zh || '';
+  if (headerEn || headerZh) {
+    const inner = [
+      headerEn ? `<div>${esc(headerEn)}</div>` : '',
+      headerZh ? `<div style="margin-top:${headerEn ? 4 : 0}px">${esc(headerZh)}</div>` : ''
+    ].join('');
+    html += `<div style="padding:12px 14px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;font-size:13px;color:#0369a1;line-height:1.5;margin-bottom:16px">${inner}</div>`;
   }
 
   // Standard fields (enabled ones only, in definition order)
@@ -1429,6 +1457,7 @@ async function remindAll() {
 function updateStdField(key, prop, value) {
   if (!state.stdConfig[key]) state.stdConfig[key] = {};
   state.stdConfig[key][prop] = value;
+  builderDirty = true;
   renderFormPreview();
 }
 
@@ -1496,7 +1525,6 @@ function renderBuilderStandalone() {
   if (!state.formQuestions.length) {
     list.innerHTML = `
       <div class="fq-empty">No custom questions yet. Click <strong>+ Add Question</strong> to collect extra info from parents.</div>`;
-    document.getElementById('builder-preview-strip').style.display = 'none';
     return;
   }
   renderFormPreview();
@@ -1565,11 +1593,13 @@ function renderBuilderStandalone() {
 
 function addBuilderQuestion() {
   state.formQuestions.push({ id: 'q_' + Date.now(), type: 'text', label_en: '', label_zh: '', options_en: [], options_zh: [], required: false });
+  builderDirty = true;
   renderBuilderStandalone();
 }
 
 function removeBQ(id) {
   state.formQuestions = state.formQuestions.filter(q => q.id !== id);
+  builderDirty = true;
   renderBuilderStandalone();
 }
 
@@ -1580,6 +1610,7 @@ function updateBQ(id, field, value) {
   else if (field === 'options_zh_raw') q.options_zh = value.split('\n').map(s => s.trim()).filter(Boolean);
   else if (field === 'required') q.required = value;
   else q[field] = value;
+  builderDirty = true;
   if (field === 'type') renderBuilderStandalone();
   else renderFormPreview();
 }
@@ -1589,25 +1620,50 @@ function moveBQ(idx, dir) {
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= qs.length) return;
   [qs[idx], qs[newIdx]] = [qs[newIdx], qs[idx]];
+  builderDirty = true;
   renderBuilderStandalone();
 }
 
+function validateFormBuilder() {
+  for (const q of state.formQuestions) {
+    if (q.type === 'info') continue;
+    if (!q.label_en || !q.label_en.trim()) {
+      toast('All questions need an English label before saving.');
+      return false;
+    }
+    if ((q.type === 'dropdown' || q.type === 'checkbox') && (!q.options_en || !q.options_en.length)) {
+      toast(`"${q.label_en}" needs at least one option before saving.`);
+      return false;
+    }
+  }
+  return true;
+}
+
 async function saveFormBuilder() {
+  if (!validateFormBuilder()) return;
   const btn = document.getElementById('save-builder-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  const formFieldsJson = JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions, _header: state.formHeader });
   const res = await api('POST', 'openday-update-event', {
     event_id:   state.selectedEvent.event_id,
     school_id:  state.school.school_id,
     password:   state.school.password,
     programmes: state.programmes.join(','),
-    form_fields: JSON.stringify({ _std: state.stdConfig, _custom: state.formQuestions, _header: state.formHeader })
+    form_fields: formFieldsJson
   });
-  btn.disabled = false; btn.textContent = 'Save Changes';
-  if (res.success || res.cors === false) {
-    state.selectedEvent.form_fields = JSON.stringify(state.formQuestions);
+  btn.disabled = false; btn.textContent = 'Save Form';
+  if (res.success && !res.cors) {
+    state.selectedEvent.form_fields = formFieldsJson;
     const ev = state.events.find(e => e.event_id === state.selectedEvent.event_id);
-    if (ev) ev.form_fields = state.selectedEvent.form_fields;
+    if (ev) ev.form_fields = formFieldsJson;
+    builderDirty = false;
     toast('Form saved!', true);
+  } else if (res.cors === false) {
+    state.selectedEvent.form_fields = formFieldsJson;
+    const ev = state.events.find(e => e.event_id === state.selectedEvent.event_id);
+    if (ev) ev.form_fields = formFieldsJson;
+    builderDirty = false;
+    toast('Saved — could not confirm receipt. Check n8n if unsure.');
   } else {
     toast('Save failed. Check connection.');
   }
@@ -1661,6 +1717,7 @@ function selectTemplate(type) {
 }
 
 let templatesDirty = false;
+let builderDirty = false;
 
 function renderTemplateEditor() {
   const t = state.templates[state.activeTemplate];
@@ -1695,7 +1752,7 @@ function updateTplPreview() {
 }
 
 window.addEventListener('beforeunload', e => {
-  if (templatesDirty) { e.preventDefault(); e.returnValue = ''; }
+  if (templatesDirty || builderDirty) { e.preventDefault(); e.returnValue = ''; }
 });
 
 async function saveTemplate() {
